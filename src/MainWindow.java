@@ -90,6 +90,8 @@ public class MainWindow implements ActionListener, KeyListener {
 		window.addKeyListener(new MainWindow());
 		window.setVisible(true);
 		window.setResizable(true);
+		window.setFocusable(true);
+
 
 		window.setJMenuBar(createMenuBar());
 
@@ -131,6 +133,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				panel.add(tempButton, sources.size() - 1);
 				panel.revalidate();
 				window.pack();
+				window.requestFocus();
 
 			}
 		});
@@ -174,10 +177,13 @@ public class MainWindow implements ActionListener, KeyListener {
 		delete = new JMenuItem("Delete Fields");
 
 		file.add(name);
-		edit.add(image);
+		// file.add(openLocation);
 		edit.add(addIcons);
-		edit.add(delete);
+		edit.add(image);
+		edit.addSeparator();
 		edit.add(addShortcuts);
+		edit.addSeparator();
+		edit.add(delete);
 
 		addIcons.addActionListener(new ActionListener() {
 
@@ -188,6 +194,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				if (changeIcons) {
 					changeIcons = false;
 					window.setTitle(nameOfJar);
+					window.requestFocus();
 				} else
 					changeIcons = true;
 			}
@@ -254,9 +261,11 @@ public class MainWindow implements ActionListener, KeyListener {
 				if (!deleteClicked) {
 					deleteClicked = true;
 					window.setTitle("Delete Buttons");
+					
 				} else {
 					deleteClicked = false;
 					window.setTitle(nameOfJar);
+					window.requestFocus();
 				}
 			}
 		});
@@ -268,6 +277,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				if (MainWindow.addShortcuts) {
 					MainWindow.addShortcuts = false;
 					window.setTitle(nameOfJar);
+					window.requestFocus();
 				} else {
 					MainWindow.addShortcuts = true;
 					MainWindow.changeIcons = false;
@@ -313,9 +323,9 @@ public class MainWindow implements ActionListener, KeyListener {
 			panel.add(tempButton, sources.size() - 1);
 			panel.revalidate();
 			window.pack();
-
+			
 		}
-
+		window.requestFocus();
 	}
 
 	// done
@@ -390,8 +400,7 @@ public class MainWindow implements ActionListener, KeyListener {
 		JPopupMenu jpm = new JPopupMenu("Add Shortcut to " + b.getName());
 		jpm.setPopupSize(250, 100);
 		jpm.requestFocus();
-		JLabel text = new JLabel(
-				"Enter Shortcut (only modifiers Ctrl and Shift)");
+		JLabel text = new JLabel("Enter Shortcut (only modifier Shift)");
 		JTextArea ta = new JTextArea();
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
@@ -419,19 +428,11 @@ public class MainWindow implements ActionListener, KeyListener {
 				if (checkForValue(e)) {
 					if (e.getModifiers() == 0)
 						ta.setText("" + e.getKeyChar());
-					else {
-						if (e.isShiftDown() && e.isControlDown()) // TODO Does
-																	// not work
-																	// at all
-							ta.setText("Ctrl + Shift +" + e.getKeyChar());
-						else if (e.isControlDown())// TODO only works with
-													// numbers
-							ta.setText("Ctrl + " + e.getKeyChar());
-						else if (e.isShiftDown())
-							ta.setText("Shift + " + e.getKeyChar());
-					}
+					else if (e.isShiftDown())
+						ta.setText("Shift + " + e.getKeyChar());
+
 				} else
-					ta.setText("");
+					ta.setText(ta.getText());
 			}
 
 			private boolean checkForValue(KeyEvent e) {
@@ -449,14 +450,25 @@ public class MainWindow implements ActionListener, KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
 				String tmp = ta.getText();
+				if (testCase(tmp)) {
+					MyFiles shortcuts = new MyFiles("Shortcut:" + tmp
+							+ " , Name: " + b.getName(), MyFiles.SHORTCUTS);
+					File f = new File("Resources/Shortcuts.dat");
 
-				MyFiles shortcuts = new MyFiles("Shortcut:" + tmp + " , Name: "
-						+ b.getName(), MyFiles.SHORTCUTS);
-				File f = new File("Resources/Shortcuts.dat");
+					shortcuts.addToFile(f);
+					jpm.setVisible(false);
+				}
+			}
 
-				shortcuts.addToFile(f);
-				jpm.setVisible(false);
+			private boolean testCase(String tmp) {
+				if(tmp.length() == 1)
+					return true;
+				pln(""+tmp.substring(tmp.lastIndexOf(" + ")+3).length());
+				if(tmp.substring(tmp.lastIndexOf(" + ")+3).length() == 1)
+					return true;
+				return false;
 			}
 
 		});
@@ -599,10 +611,6 @@ public class MainWindow implements ActionListener, KeyListener {
 		return jfc;
 	}
 
-	private static void pln(String s) {
-		System.out.println(s);
-	}
-
 	public static void openButton(ActionEvent e) {
 		if ((e.getSource().getClass()) == MyButton.class
 				&& ((MyButton) e.getSource()).getProfile().getFileType()
@@ -642,11 +650,11 @@ public class MainWindow implements ActionListener, KeyListener {
 			}
 		}
 	}
+
 	public static void openButton(MyButton b) {
-		if ( b.getProfile().getFileType()
-						.equals(MyFiles.PROGRAM)) {
+		if (b.getProfile().getFileType().equals(MyFiles.PROGRAM)) {
 			pln(b.getProfile().getFileType());
-			String temp =  b.getLoc();
+			String temp = b.getLoc();
 			pln("Here " + temp);
 
 			try {
@@ -657,8 +665,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				e1.printStackTrace();
 			}
 		}
-		if (b.getProfile().getFileType()
-				.equals(MyFiles.WEBSITE)) {
+		if (b.getProfile().getFileType().equals(MyFiles.WEBSITE)) {
 			pln(b.getLoc());
 			String url = b.getProfile().getPath();
 			if (Desktop.isDesktopSupported()) {
@@ -688,40 +695,47 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	public void keyReleased(KeyEvent e) {
 		String tmp;
-		if (e.isShiftDown() && e.isControlDown()) { // TODO Does not work
-			tmp = "Ctrl + Shift +" + e.getKeyChar();
-		} else if (e.isControlDown()) {// TODO only works with
-			// numbers
-			tmp = "Ctrl + " + e.getKeyChar();
-		} else if (e.isShiftDown()) {
-			tmp = "Shift + " + e.getKeyChar();
-		} else {
-			tmp = "" + e.getKeyChar();
-		}
-		for (JButton b : sources) {//TODO wrong place, initialize all shortcuts somewhere else
-			pln(((MyButton)b).getLoc());
-			String testCase = findShortcutForName(((MyButton)b).getName());
+		
+		tmp = "" + e.getKeyChar();
+		
+		for (JButton b : sources) {
+			pln(((MyButton) b).getLoc());
+			String testCase = findShortcutForName(((MyButton) b).getName());
 			pln(testCase);
 			if (tmp.equals(testCase)) {
-				openButton((MyButton)b);
+				openButton((MyButton) b);
+				pln("done");
+			}
+			else if(testCase.endsWith(tmp)){
+				openButton((MyButton) b);
 				pln("done");
 			}
 		}
-		pln(""+e.getKeyChar());
+		pln("" + e.getKeyChar());
 	}
 
 	private String findShortcutForName(String name) {
+		String tmp = null;
 		try {
-			Scanner shortcutIO = new Scanner(new File("Resources/Shortcuts.dat"));
-			while(shortcutIO.hasNextLine()){
-				
+			Scanner shortcutIO = new Scanner(
+					new File("Resources/Shortcuts.dat"));
+			while (shortcutIO.hasNextLine()) {
+
 				String line = shortcutIO.nextLine();
-			
-				if(line.contains(name))
-					return (new MyFiles(line,MyFiles.SHORTCUTS)).getPath();
+
+				
+				if (line.contains(name))
+					tmp = (new MyFiles(line, MyFiles.SHORTCUTS)).getPath();
 			}
-		} catch (FileNotFoundException e) {	e.printStackTrace();	}
-		return "";
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return tmp;
+	}
+
+	private static void pln(String s) {
+		System.out.println(s);
 	}
 }
 

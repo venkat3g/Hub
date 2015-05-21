@@ -56,6 +56,9 @@ public class MyFiles {
 		else if(fileType == WEBSITE){
 			return path;
 		}
+		else if(fileType == SHORTCUTS){
+			return path.substring(path.lastIndexOf(':')+1);
+		}
 		return "Not a valid File Type";
 	}
 
