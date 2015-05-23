@@ -34,7 +34,6 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.JTextComponent;
 
 public class MainWindow implements ActionListener, KeyListener {
 
@@ -717,6 +716,7 @@ public class MainWindow implements ActionListener, KeyListener {
 	private String findShortcutForName(String name) {
 		String tmp = null;
 		try {
+			@SuppressWarnings("resource")
 			Scanner shortcutIO = new Scanner(
 					new File("Resources/Shortcuts.dat"));
 			while (shortcutIO.hasNextLine()) {
