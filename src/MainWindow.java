@@ -164,7 +164,7 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	}
 
-	// Add shortcut menu
+	
 	private static JMenuBar createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
 		JMenu file = new JMenu("File");
@@ -394,14 +394,14 @@ public class MainWindow implements ActionListener, KeyListener {
 		}
 		e.getClass();
 	}
+	// done
+	private void performShortcutsActions(ActionEvent e, final MyButton b) {
 
-	private void performShortcutsActions(ActionEvent e, MyButton b) {
-
-		JPopupMenu jpm = new JPopupMenu("Add Shortcut to " + b.getName());
+		final JPopupMenu jpm = new JPopupMenu("Add Shortcut to " + b.getName());
 		jpm.setPopupSize(250, 100);
 		jpm.requestFocus();
 		JLabel text = new JLabel("Enter Shortcut (only modifier Shift)");
-		JTextArea ta = new JTextArea();
+		final JTextArea ta = new JTextArea();
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
 
@@ -610,7 +610,7 @@ public class MainWindow implements ActionListener, KeyListener {
 		jfc.setFileFilter(filter);
 		return jfc;
 	}
-
+	// done
 	public static void openButton(ActionEvent e) {
 		if ((e.getSource().getClass()) == MyButton.class
 				&& ((MyButton) e.getSource()).getProfile().getFileType()
@@ -650,7 +650,7 @@ public class MainWindow implements ActionListener, KeyListener {
 			}
 		}
 	}
-
+	// done
 	public static void openButton(MyButton b) {
 		if (b.getProfile().getFileType().equals(MyFiles.PROGRAM)) {
 			pln(b.getProfile().getFileType());
@@ -713,7 +713,7 @@ public class MainWindow implements ActionListener, KeyListener {
 		}
 		pln("" + e.getKeyChar());
 	}
-
+	// done
 	private String findShortcutForName(String name) {
 		String tmp = null;
 		try {
@@ -733,12 +733,13 @@ public class MainWindow implements ActionListener, KeyListener {
 		
 		return tmp;
 	}
-
+	// done
 	private static void pln(String s) {
 		System.out.println(s);
 	}
 }
 
+// done
 @SuppressWarnings("serial")
 class MyButton extends JButton {
 	private String location;
