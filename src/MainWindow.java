@@ -75,6 +75,10 @@ public class MainWindow implements ActionListener, KeyListener {
 			if (!sourcesFile.exists()) {
 				(new File("Resources")).mkdir();
 				sourcesFile.createNewFile();
+
+			}
+			if(!(new File("Images")).exists()){
+				(new File("Images")).mkdir();
 			}
 
 		} catch (IOException ex) {
@@ -367,22 +371,20 @@ public class MainWindow implements ActionListener, KeyListener {
 			if (findImageForButton(j) != null) {
 				String imageFileName = findImageForButton(j); // transform it
 				Image image = (new ImageIcon(imageFileName)).getImage();
-				
-				if(!imageFileName.contains("doNotScale")){
-					
+
+				if (!imageFileName.contains("doNotScale")) {
+
 					Image newimg = image.getScaledInstance(120, 120,
-						java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+							java.awt.Image.SCALE_SMOOTH); // scale it the smooth
+															// way
 					ImageIcon newIcon = new ImageIcon(newimg);
 					j.setIcon(newIcon);
-				}
-				else{
+				} else {
 					Image newimg = image;
 					ImageIcon newIcon = new ImageIcon(newimg);
 					j.setIcon(newIcon);
 				}
 
-				
-				
 			}
 
 			panel.add(j);
@@ -400,9 +402,8 @@ public class MainWindow implements ActionListener, KeyListener {
 			while (io.hasNextLine()) {
 				line = io.nextLine();
 				if (line.contains(((MyButton) j).getName()))
-					tmp = line.substring(0,
-							line.lastIndexOf(" , Name:"));
-				
+					tmp = line.substring(0, line.lastIndexOf(" , Name:"));
+
 			}
 		} catch (FileNotFoundException e) {
 
@@ -748,8 +749,9 @@ public class MainWindow implements ActionListener, KeyListener {
 			pln(((MyButton) b).getLoc());
 			String testCase = findShortcutForName(((MyButton) b).getName());
 			pln(testCase);
-			if(testCase == null){ pln("One or more files do not have shortcuts.");}
-			else if (tmp.equals(testCase)) {
+			if (testCase == null) {
+				pln("One or more files do not have shortcuts.");
+			} else if (tmp.equals(testCase)) {
 				openButton((MyButton) b);
 				pln("done");
 			} else if (testCase.endsWith(tmp)) {
