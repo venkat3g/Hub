@@ -1,10 +1,12 @@
 import java.awt.Desktop;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -19,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,6 +37,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
 
 public class MainWindow implements ActionListener, KeyListener {
 
@@ -90,7 +94,6 @@ public class MainWindow implements ActionListener, KeyListener {
 		window.setVisible(true);
 		window.setResizable(true);
 		window.setFocusable(true);
-
 
 		window.setJMenuBar(createMenuBar());
 
@@ -163,7 +166,6 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	}
 
-	
 	private static JMenuBar createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
 		JMenu file = new JMenu("File");
@@ -260,7 +262,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				if (!deleteClicked) {
 					deleteClicked = true;
 					window.setTitle("Delete Buttons");
-					
+
 				} else {
 					deleteClicked = false;
 					window.setTitle(nameOfJar);
@@ -319,10 +321,40 @@ public class MainWindow implements ActionListener, KeyListener {
 			sources.add(tempButton);
 			tempButton.addActionListener(new MainWindow());
 
+			ImageIcon tempIcon = (ImageIcon) FileSystemView.getFileSystemView()
+					.getSystemIcon(new File(filePath));
+
+			BufferedImage bi = new BufferedImage(tempIcon.getIconWidth(),
+					tempIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+
+			Graphics2D g2 = bi.createGraphics();
+			g2.drawImage(tempIcon.getImage(), 0, 0, null);
+			g2.dispose();
+
+			try {
+				ImageIO.write(bi, "png", new File("Images/" + fileName
+						+ ".doNotScale.png"));
+			} catch (IOException e) {
+				pln("File Not Found");
+			}
+
+			PrintWriter pw;
+			try {
+				pw = new PrintWriter(new FileWriter(new File(
+						"Resources/images.dat"), true));
+				pw.println("Images/" + fileName + ".doNotScale.png"
+						+ " , Name: " + fileName);
+				pw.close();
+			} catch (IOException e) {
+				pln("File Not Found");
+			}
+
+			tempButton.setIcon(tempIcon); // To small
+
 			panel.add(tempButton, sources.size() - 1);
 			panel.revalidate();
 			window.pack();
-			
+
 		}
 		window.requestFocus();
 	}
@@ -333,13 +365,24 @@ public class MainWindow implements ActionListener, KeyListener {
 		for (JButton j : sources) {
 			j.addActionListener(new MainWindow());
 			if (findImageForButton(j) != null) {
-				Image image = findImageForButton(j).getImage(); // transform it
-
-				Image newimg = image.getScaledInstance(120, 120,
+				String imageFileName = findImageForButton(j); // transform it
+				Image image = (new ImageIcon(imageFileName)).getImage();
+				
+				if(!imageFileName.contains("doNotScale")){
+					
+					Image newimg = image.getScaledInstance(120, 120,
 						java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+					ImageIcon newIcon = new ImageIcon(newimg);
+					j.setIcon(newIcon);
+				}
+				else{
+					Image newimg = image;
+					ImageIcon newIcon = new ImageIcon(newimg);
+					j.setIcon(newIcon);
+				}
 
-				ImageIcon newIcon = new ImageIcon(newimg);
-				j.setIcon(newIcon);
+				
+				
 			}
 
 			panel.add(j);
@@ -348,17 +391,18 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	// done
 	@SuppressWarnings("resource")
-	private static ImageIcon findImageForButton(JButton j) { // DONE
+	private static String findImageForButton(JButton j) { // DONE
 		String line = "";
 		Scanner io;
-		ImageIcon tmp = null;
+		String tmp = null;
 		try {
 			io = new Scanner(new File("Resources/images.dat"));
 			while (io.hasNextLine()) {
 				line = io.nextLine();
 				if (line.contains(((MyButton) j).getName()))
-					tmp = new ImageIcon(line.substring(0,
-							line.lastIndexOf(" , Name:")));
+					tmp = line.substring(0,
+							line.lastIndexOf(" , Name:"));
+				
 			}
 		} catch (FileNotFoundException e) {
 
@@ -393,6 +437,7 @@ public class MainWindow implements ActionListener, KeyListener {
 		}
 		e.getClass();
 	}
+
 	// done
 	private void performShortcutsActions(ActionEvent e, final MyButton b) {
 
@@ -444,7 +489,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				return false;
 			}
 		});
-		// TODO working on
+
 		okayButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -462,10 +507,10 @@ public class MainWindow implements ActionListener, KeyListener {
 			}
 
 			private boolean testCase(String tmp) {
-				if(tmp.length() == 1)
+				if (tmp.length() == 1)
 					return true;
-				pln(""+tmp.substring(tmp.lastIndexOf(" + ")+3).length());
-				if(tmp.substring(tmp.lastIndexOf(" + ")+3).length() == 1)
+				pln("" + tmp.substring(tmp.lastIndexOf(" + ") + 3).length());
+				if (tmp.substring(tmp.lastIndexOf(" + ") + 3).length() == 1)
 					return true;
 				return false;
 			}
@@ -609,6 +654,7 @@ public class MainWindow implements ActionListener, KeyListener {
 		jfc.setFileFilter(filter);
 		return jfc;
 	}
+
 	// done
 	public static void openButton(ActionEvent e) {
 		if ((e.getSource().getClass()) == MyButton.class
@@ -649,6 +695,7 @@ public class MainWindow implements ActionListener, KeyListener {
 			}
 		}
 	}
+
 	// done
 	public static void openButton(MyButton b) {
 		if (b.getProfile().getFileType().equals(MyFiles.PROGRAM)) {
@@ -694,24 +741,25 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	public void keyReleased(KeyEvent e) {
 		String tmp;
-		
+
 		tmp = "" + e.getKeyChar();
-		
+
 		for (JButton b : sources) {
 			pln(((MyButton) b).getLoc());
 			String testCase = findShortcutForName(((MyButton) b).getName());
 			pln(testCase);
-			if (tmp.equals(testCase)) {
+			if(testCase == null){ pln("One or more files do not have shortcuts.");}
+			else if (tmp.equals(testCase)) {
 				openButton((MyButton) b);
 				pln("done");
-			}
-			else if(testCase.endsWith(tmp)){
+			} else if (testCase.endsWith(tmp)) {
 				openButton((MyButton) b);
 				pln("done");
 			}
 		}
 		pln("" + e.getKeyChar());
 	}
+
 	// done
 	private String findShortcutForName(String name) {
 		String tmp = null;
@@ -723,16 +771,16 @@ public class MainWindow implements ActionListener, KeyListener {
 
 				String line = shortcutIO.nextLine();
 
-				
 				if (line.contains(name))
 					tmp = (new MyFiles(line, MyFiles.SHORTCUTS)).getPath();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+		} catch (FileNotFoundException | NullPointerException e) {
+			pln("Cannot find Shortcut for key.");
 		}
-		
+
 		return tmp;
 	}
+
 	// done
 	private static void pln(String s) {
 		System.out.println(s);
