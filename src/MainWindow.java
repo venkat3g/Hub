@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +41,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
-public class MainWindow implements ActionListener, KeyListener {
+public class MainWindow implements ActionListener, KeyListener, MouseListener {
 
 	private static JFrame window = new JFrame();
 	private static JPanel panel = new JPanel();
@@ -53,9 +55,6 @@ public class MainWindow implements ActionListener, KeyListener {
 	private static ArrayList<JButton> sources = new ArrayList<JButton>(0);
 
 	private static boolean deleteClicked = false;
-	private static boolean changeIcons = false;
-	private static boolean addShortcuts = false;
-
 	private static String nameOfJar;
 
 	public static void main(String[] args) throws FileNotFoundException {
@@ -77,7 +76,7 @@ public class MainWindow implements ActionListener, KeyListener {
 				sourcesFile.createNewFile();
 
 			}
-			if(!(new File("Images")).exists()){
+			if (!(new File("Images")).exists()) {
 				(new File("Images")).mkdir();
 			}
 
@@ -133,8 +132,11 @@ public class MainWindow implements ActionListener, KeyListener {
 				MyFiles tempWeb = new MyFiles(tempPathLine, MyFiles.WEBSITE);
 				MyButton tempButton = new MyButton(tempWeb.getPath(), tempWeb
 						.getName(), tempWeb);
+
 				tempWeb.addToFile(sourcesFile);
 				tempButton.addActionListener(new MainWindow());
+				tempButton.addMouseListener(new MainWindow());
+
 				sources.add(tempButton);
 				panel.add(tempButton, sources.size() - 1);
 				panel.revalidate();
@@ -175,36 +177,14 @@ public class MainWindow implements ActionListener, KeyListener {
 		JMenu file = new JMenu("File");
 		JMenu edit = new JMenu("Edit");
 		JMenuItem image = new JMenuItem("Change Icon");
-		JMenuItem addIcons = new JMenuItem("Add Images");
-		JMenuItem addShortcuts = new JMenuItem("Add Shortcuts");
 
 		name = new JMenuItem("Name");
 		delete = new JMenuItem("Delete Fields");
 
 		file.add(name);
-		// file.add(openLocation);
-		edit.add(addIcons);
 		edit.add(image);
 		edit.addSeparator();
-		edit.add(addShortcuts);
-		edit.addSeparator();
 		edit.add(delete);
-
-		addIcons.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				deleteClicked = false;
-				window.setTitle("Add Images");
-				if (changeIcons) {
-					changeIcons = false;
-					window.setTitle(nameOfJar);
-					window.requestFocus();
-				} else
-					changeIcons = true;
-			}
-
-		});
 
 		image.addActionListener(new java.awt.event.ActionListener() {
 
@@ -262,7 +242,7 @@ public class MainWindow implements ActionListener, KeyListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				changeIcons = false;
+
 				if (!deleteClicked) {
 					deleteClicked = true;
 					window.setTitle("Delete Buttons");
@@ -273,25 +253,6 @@ public class MainWindow implements ActionListener, KeyListener {
 					window.requestFocus();
 				}
 			}
-		});
-
-		addShortcuts.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (MainWindow.addShortcuts) {
-					MainWindow.addShortcuts = false;
-					window.setTitle(nameOfJar);
-					window.requestFocus();
-				} else {
-					MainWindow.addShortcuts = true;
-					MainWindow.changeIcons = false;
-					MainWindow.deleteClicked = false;
-					window.setTitle("Add Shortcuts");
-				}
-
-			}
-
 		});
 
 		menubar.add(file);
@@ -324,6 +285,7 @@ public class MainWindow implements ActionListener, KeyListener {
 					tempFile.getName(), tempFile);
 			sources.add(tempButton);
 			tempButton.addActionListener(new MainWindow());
+			tempButton.addMouseListener(new MainWindow());
 
 			ImageIcon tempIcon = (ImageIcon) FileSystemView.getFileSystemView()
 					.getSystemIcon(new File(filePath));
@@ -368,13 +330,14 @@ public class MainWindow implements ActionListener, KeyListener {
 
 		for (JButton j : sources) {
 			j.addActionListener(new MainWindow());
+			j.addMouseListener(new MainWindow());
 			if (findImageForButton(j) != null) {
 				String imageFileName = findImageForButton(j); // transform it
 				Image image = (new ImageIcon(imageFileName)).getImage();
 
 				if (!imageFileName.contains("doNotScale")) {
 
-					Image newimg = image.getScaledInstance(120, 120,
+					Image newimg = image.getScaledInstance(45, 45,
 							java.awt.Image.SCALE_SMOOTH); // scale it the smooth
 															// way
 					ImageIcon newIcon = new ImageIcon(newimg);
@@ -393,7 +356,7 @@ public class MainWindow implements ActionListener, KeyListener {
 
 	// done
 	@SuppressWarnings("resource")
-	private static String findImageForButton(JButton j) { // DONE
+	private static String findImageForButton(JButton j) {
 		String line = "";
 		Scanner io;
 		String tmp = null;
@@ -423,11 +386,7 @@ public class MainWindow implements ActionListener, KeyListener {
 
 				e1.printStackTrace();
 			}
-		} else if (changeIcons && (e.getSource().getClass()) == MyButton.class)
-			performChangeIconsActions(e);
-		else if (addShortcuts && (e.getSource().getClass()) == MyButton.class)
-			performShortcutsActions(e, (MyButton) e.getSource());
-		else {
+		} else {
 
 			if (e.getSource() == jb) {
 				createSourceButton();
@@ -440,9 +399,10 @@ public class MainWindow implements ActionListener, KeyListener {
 	}
 
 	// done
-	private void performShortcutsActions(ActionEvent e, final MyButton b) {
+	private void changeShortcut(final MyButton MyButton) {
 
-		final JPopupMenu jpm = new JPopupMenu("Add Shortcut to " + b.getName());
+		final JPopupMenu jpm = new JPopupMenu("Add Shortcut to "
+				+ MyButton.getName());
 		jpm.setPopupSize(250, 100);
 		jpm.requestFocus();
 		JLabel text = new JLabel("Enter Shortcut (only modifier Shift)");
@@ -499,7 +459,8 @@ public class MainWindow implements ActionListener, KeyListener {
 				String tmp = ta.getText();
 				if (testCase(tmp)) {
 					MyFiles shortcuts = new MyFiles("Shortcut:" + tmp
-							+ " , Name: " + b.getName(), MyFiles.SHORTCUTS);
+							+ " , Name: " + MyButton.getName(),
+							MyFiles.SHORTCUTS);
 					File f = new File("Resources/Shortcuts.dat");
 
 					shortcuts.addToFile(f);
@@ -523,16 +484,18 @@ public class MainWindow implements ActionListener, KeyListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				jpm.setVisible(false);
+				jpm.setEnabled(false);
+				MyButton.setComponentPopupMenu(null);
 			}
 
 		});
 
 		jpm.updateUI();
 
-		b.setComponentPopupMenu(jpm);
+		MyButton.setComponentPopupMenu(jpm);
 		jpm.setBorderPainted(true);
 
-		jpm.show(b, 0, 0);
+		jpm.show(MyButton, 0, 0);
 
 	}
 
@@ -564,7 +527,7 @@ public class MainWindow implements ActionListener, KeyListener {
 	}
 
 	// done
-	private void performChangeIconsActions(ActionEvent e) {
+	private void changeImage(final MyButton e) {
 
 		String[] types = { "png", "jpg" };
 		JFileChooser jfc = makeFileChooser("Images", types);
@@ -588,19 +551,17 @@ public class MainWindow implements ActionListener, KeyListener {
 					"Resources/images.dat"), true));
 			pw.println("Images/"
 					+ imageString.substring(imageString.lastIndexOf("\\") + 1)
-					+ " , Name: " + ((MyButton) e.getSource()).getName());
+					+ " , Name: " + (e).getName());
 			pw.close();
 			Image image = icon.getImage();
-			Image newimg = image.getScaledInstance(120, 120,
+			Image newimg = image.getScaledInstance(45, 45,
 					java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
 
 			ImageIcon newIcon = new ImageIcon(newimg);
-			((MyButton) e.getSource()).setIcon(newIcon);
+			(e).setIcon(newIcon);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
-		window.setTitle("Add Images");
 
 	}
 
@@ -708,7 +669,6 @@ public class MainWindow implements ActionListener, KeyListener {
 				@SuppressWarnings("unused")
 				Process process = new ProcessBuilder("cmd", "/c", temp).start();
 			} catch (IOException e1) {
-
 				e1.printStackTrace();
 			}
 		}
@@ -732,6 +692,47 @@ public class MainWindow implements ActionListener, KeyListener {
 				}
 			}
 		}
+	}
+
+	public static void openButtonLocation(MyButton MyButton) {
+		pln(MyButton.getLoc());
+		String buttonLocation = MyButton.getLoc();
+		String location = buttonLocation.substring(0,
+				buttonLocation.lastIndexOf("\\"));
+		pln(location);
+		try {
+			@SuppressWarnings("unused")
+			Process process = new ProcessBuilder("cmd", "/c", "explorer.exe "
+					+ location).start();
+		} catch (IOException e) {
+			pln("openButtonLocation function/method has failed");
+		}
+	}
+
+	// done
+	private String findShortcutForName(String name) {
+		String tmp = null;
+		try {
+			@SuppressWarnings("resource")
+			Scanner shortcutIO = new Scanner(
+					new File("Resources/Shortcuts.dat"));
+			while (shortcutIO.hasNextLine()) {
+
+				String line = shortcutIO.nextLine();
+
+				if (line.contains(name))
+					tmp = (new MyFiles(line, MyFiles.SHORTCUTS)).getPath();
+			}
+		} catch (FileNotFoundException | NullPointerException e) {
+			pln("Cannot find Shortcut for key.");
+		}
+
+		return tmp;
+	}
+
+	// done
+	private static void pln(String s) {
+		System.out.println(s);
 	}
 
 	public void keyTyped(KeyEvent e) {
@@ -762,30 +763,68 @@ public class MainWindow implements ActionListener, KeyListener {
 		pln("" + e.getKeyChar());
 	}
 
-	// done
-	private String findShortcutForName(String name) {
-		String tmp = null;
-		try {
-			@SuppressWarnings("resource")
-			Scanner shortcutIO = new Scanner(
-					new File("Resources/Shortcuts.dat"));
-			while (shortcutIO.hasNextLine()) {
-
-				String line = shortcutIO.nextLine();
-
-				if (line.contains(name))
-					tmp = (new MyFiles(line, MyFiles.SHORTCUTS)).getPath();
-			}
-		} catch (FileNotFoundException | NullPointerException e) {
-			pln("Cannot find Shortcut for key.");
-		}
-
-		return tmp;
+	@Override
+	public void mouseClicked(MouseEvent e) {
 	}
 
-	// done
-	private static void pln(String s) {
-		System.out.println(s);
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			JPopupMenu tmpMenu = new JPopupMenu();
+			final MyButton tmpButton = (MyButton) e.getComponent();
+
+			JMenuItem addIcons = new JMenuItem("Change Image");
+			JMenuItem addShortcut = new JMenuItem("Change Shortcut");
+			JMenuItem openFileLocation = new JMenuItem("Open Location");
+
+			addIcons.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					changeImage(tmpButton);
+
+				}
+
+			});
+
+			addShortcut.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					changeShortcut(tmpButton);
+				}
+
+			});
+
+			openFileLocation.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					openButtonLocation(tmpButton);
+				}
+
+			});
+
+			tmpMenu.add(addIcons);
+			tmpMenu.add(addShortcut);
+			if (tmpButton.getProfile().getFileType() == MyFiles.PROGRAM)
+				tmpMenu.add(openFileLocation);
+			tmpMenu.setVisible(true);
+			tmpMenu.show(e.getComponent(), e.getX(), e.getY());
+
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 }
 
