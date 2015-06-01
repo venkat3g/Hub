@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -51,11 +53,14 @@ public class MainWindow implements ActionListener, KeyListener, MouseListener {
 	private static JMenuItem delete;
 
 	private static File sourcesFile;
+	
+	
 
 	private static ArrayList<JButton> sources = new ArrayList<JButton>(0);
 
 	private static boolean deleteClicked = false;
 	private static String nameOfJar;
+	private static int scaled_value = 45;
 
 	public static void main(String[] args) throws FileNotFoundException {
 
@@ -63,6 +68,7 @@ public class MainWindow implements ActionListener, KeyListener, MouseListener {
 		fillSources();
 		addButtons();
 		instatiateFrame();
+		
 
 	}
 
@@ -337,7 +343,7 @@ public class MainWindow implements ActionListener, KeyListener, MouseListener {
 
 				if (!imageFileName.contains("doNotScale")) {
 
-					Image newimg = image.getScaledInstance(45, 45,
+					Image newimg = image.getScaledInstance(scaled_value, scaled_value,
 							java.awt.Image.SCALE_SMOOTH); // scale it the smooth
 															// way
 					ImageIcon newIcon = new ImageIcon(newimg);
@@ -465,6 +471,7 @@ public class MainWindow implements ActionListener, KeyListener, MouseListener {
 
 					shortcuts.addToFile(f);
 					jpm.setVisible(false);
+					MyButton.setComponentPopupMenu(null);
 				}
 			}
 
