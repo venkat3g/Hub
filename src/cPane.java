@@ -1,8 +1,6 @@
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +31,7 @@ public class cPane extends JPanel {
 	public cPane(MainWindow frame, GridLayout layout) {
 		pInstance = frame;
 		this.cPane = this;
-		
+
 		setLayout(layout);
 		try {
 			addButtons(this);
@@ -93,115 +91,106 @@ public class cPane extends JPanel {
 
 	}
 
-	private void instantiateDefaultButtons(JPanel pane, MainWindow frame)
-			throws FileNotFoundException {
+	private void instantiateDefaultButtons(final JPanel pane,
+			final MainWindow frame) throws FileNotFoundException {
 
 		JButton addPrograms = new JButton();
 		JButton webs = new JButton("add Websites");
 
-		addPrograms.addActionListener(new ActionListener() {
-			private void createSourceButton() {
-				String[] types = { "exe", "lnk" };
-				JFileChooser jfc = MainWindow.makeFileChooser(
-						"Executables & Shorcuts", types);
+		addPrograms
+				.addActionListener(evt -> {
 
-				int returnValue = jfc.showOpenDialog(frame);
+					String[] types = { "exe", "lnk" };
+					JFileChooser jfc = MainWindow.makeFileChooser(
+							"Executables & Shorcuts", types);
 
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					int returnValue = jfc.showOpenDialog(frame);
 
-					String programPath = jfc.getSelectedFile().toString();
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
 
-					int i = 0;
-					while (programPath.indexOf("\\", i) != -1) {
-						i++;
-						programPath.indexOf("\\", i);
+						String programPath = jfc.getSelectedFile().toString();
 
-					}
-					String fileName = programPath.substring(i);
-					HubFiles tempFile = new HubFiles("File:" + programPath
-							+ " , Name: " + fileName, HubFiles.PROGRAM);
-					tempFile.addToFile(MainWindow.sourceFile);
-					HubButton tempButton = new HubButton(tempFile,
-							MainWindow.sourceList.size());
+						int i = 0;
+						while (programPath.indexOf("\\", i) != -1) {
+							i++;
+							programPath.indexOf("\\", i);
 
-					MainWindow.sourceList.add(tempButton);
-					tempButton.addActionListener(tempButton);
-					tempButton.addMouseListener(tempButton);
+						}
+						String fileName = programPath.substring(i);
+						HubFiles tempFile = new HubFiles("File:" + programPath
+								+ " , Name: " + fileName, HubFiles.PROGRAM);
+						tempFile.addToFile(MainWindow.sourceFile);
+						HubButton tempButton = new HubButton(tempFile,
+								MainWindow.sourceList.size());
 
-					ImageIcon tempIcon = (ImageIcon) FileSystemView
-							.getFileSystemView().getSystemIcon(
-									new File(programPath));
+						MainWindow.sourceList.add(tempButton);
+						tempButton.addActionListener(tempButton);
+						tempButton.addMouseListener(tempButton);
 
-					BufferedImage bi = new BufferedImage(tempIcon
-							.getIconWidth(), tempIcon.getIconHeight(),
-							BufferedImage.TYPE_4BYTE_ABGR);
+						ImageIcon tempIcon = (ImageIcon) FileSystemView
+								.getFileSystemView().getSystemIcon(
+										new File(programPath));
 
-					Graphics2D g2 = bi.createGraphics();
-					g2.drawImage(tempIcon.getImage(), 0, 0, null);
-					g2.dispose();
+						BufferedImage bi = new BufferedImage(tempIcon
+								.getIconWidth(), tempIcon.getIconHeight(),
+								BufferedImage.TYPE_4BYTE_ABGR);
 
-					try {
-						ImageIO.write(bi, "png", new File("Images/" + fileName
-								+ ".doNotScale.png"));
-					} catch (IOException e) {
-						System.out.println("File Not Found");
-					}
+						Graphics2D g2 = bi.createGraphics();
+						g2.drawImage(tempIcon.getImage(), 0, 0, null);
+						g2.dispose();
 
-					PrintWriter pw;
-					try {
-						pw = new PrintWriter(new FileWriter(
-								MainWindow.imageFile, true));
-						pw.println("Images/" + fileName + ".doNotScale.png"
-								+ " , Name: " + fileName);
-						pw.close();
-					} catch (IOException e) {
-						System.out.println("File Not Found");
-					}
+						try {
+							ImageIO.write(bi, "png", new File("Images/"
+									+ fileName + ".doNotScale.png"));
+						} catch (IOException e) {
+							System.out.println("File Not Found");
+						}
 
-					tempButton.setIcon(tempIcon); // To small
+						PrintWriter pw;
+						try {
+							pw = new PrintWriter(new FileWriter(
+									MainWindow.imageFile, true));
+							pw.println("Images/" + fileName + ".doNotScale.png"
+									+ " , Name: " + fileName);
+							pw.close();
+						} catch (IOException e) {
+							System.out.println("File Not Found");
+						}
 
-					pane.add(tempButton, MainWindow.sourceList.size() - 1);
-					pane.revalidate();
-					frame.pack();
+						tempButton.setIcon(tempIcon); // To small
 
-				}
-				frame.requestFocus();
-			}
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				createSourceButton();
-
-			}
-		});
-
-		webs.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				String URL = JOptionPane.showInputDialog(frame,
-						"Website URL: ", null);
-
-				String name = JOptionPane.showInputDialog(frame, "Name Site: ",
-						null);
-				String tempPathLine = URL + " , Name: " + name;
-				HubFiles tempHubWeb = new HubFiles(tempPathLine,
-						HubFiles.WEBSITE);
-				HubButton tempHubButton = new HubButton(tempHubWeb,
-						MainWindow.sourceList.size());
-
-				tempHubWeb.addToFile(MainWindow.sourceFile);
-				tempHubButton.addActionListener(tempHubButton);
-				tempHubButton.addMouseListener(tempHubButton);
-
-				MainWindow.sourceList.add(tempHubButton);
-				pane.add(tempHubButton, MainWindow.sourceList.size() - 1);
-				frame.revalidate();
+				pane.add(tempButton, MainWindow.sourceList.size() - 1);
+				pane.revalidate();
 				frame.pack();
-				frame.requestFocus();
 
 			}
+			frame.requestFocus();
+		}
+
+		);
+
+		webs.addActionListener(e -> {
+
+			String URL = JOptionPane.showInputDialog(frame, "Website URL: ",
+					null);
+
+			String name = JOptionPane.showInputDialog(frame, "Name Site: ",
+					null);
+			String tempPathLine = URL + " , Name: " + name;
+			HubFiles tempHubWeb = new HubFiles(tempPathLine, HubFiles.WEBSITE);
+			HubButton tempHubButton = new HubButton(tempHubWeb,
+					MainWindow.sourceList.size());
+
+			tempHubWeb.addToFile(MainWindow.sourceFile);
+			tempHubButton.addActionListener(tempHubButton);
+			tempHubButton.addMouseListener(tempHubButton);
+
+			MainWindow.sourceList.add(tempHubButton);
+			pane.add(tempHubButton, MainWindow.sourceList.size() - 1);
+			frame.revalidate();
+			frame.pack();
+			frame.requestFocus();
+
 		});
 
 		ImageIcon icon = new ImageIcon(
@@ -217,7 +206,8 @@ public class cPane extends JPanel {
 	public static void removeButton(HubButton hubButton) {
 		try {
 			System.out.println(hubButton.getProfile().toString());
-			hubButton.getProfile().removeFromFile(MainWindow.sourceFile,hubButton);
+			hubButton.getProfile().removeFromFile(MainWindow.sourceFile,
+					hubButton);
 			MainWindow.loadFiles();
 			cPane.remove(hubButton);
 			cPane.revalidate();
@@ -226,7 +216,7 @@ public class cPane extends JPanel {
 			System.out.println("File not Found");
 		}
 	}
-	//TODO change layout once number of items changes
-	//TODO fix removing more than on item... so far removes last multiple
+	// TODO change layout once number of items changes
+	// TODO fix removing more than on item... so far removes last multiple
 
 }

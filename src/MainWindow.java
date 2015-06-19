@@ -1,6 +1,4 @@
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -26,11 +24,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /*
- * Purpose:
- * 		-Give the code a more polished look / make code look more professional.
- * Additions:
- * 		-Add option to change button name.
- * 		-Access content/shortcuts from phone... test with Test class first
+	Additions:
+ 		-Access content/shortcuts from phone
  */
 public class MainWindow extends JFrame implements KeyListener {
 
@@ -208,7 +203,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
 	}
 
-	private JMenuBar instantiateMenuBar(MainWindow MainWindow) {
+	private JMenuBar instantiateMenuBar(final MainWindow MainWindow) {
 		JMenuBar menubar = new JMenuBar();
 		JMenu file = new JMenu("File");
 		JMenu edit = new JMenu("Edit");
@@ -222,70 +217,56 @@ public class MainWindow extends JFrame implements KeyListener {
 		edit.addSeparator();
 		edit.add(delete);
 
-		image.addActionListener(new java.awt.event.ActionListener() {
+		image.addActionListener(e -> {
+			String[] types = { "png", "jpg" };
+			JFileChooser jfc = makeFileChooser("Images", types);
+			jfc.showOpenDialog(MainWindow);
+			File imageLoc = jfc.getSelectedFile();
+			ImageIcon icon = new ImageIcon(imageLoc.getAbsolutePath());
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String[] types = { "png", "jpg" };
-				JFileChooser jfc = makeFileChooser("Images", types);
-				jfc.showOpenDialog(MainWindow);
-				File imageLoc = jfc.getSelectedFile();
-				ImageIcon icon = new ImageIcon(imageLoc.getAbsolutePath());
+			MainWindow.setIconImage(icon.getImage());
+			Path source = Paths.get(imageLoc.getAbsolutePath());
+			try {
+				int num = imageLoc.getAbsolutePath().lastIndexOf(".");
+				Files.copy(
+						source,
+						Paths.get("Images/imageIcon"
+								+ imageLoc.getPath().substring(num)),
+						StandardCopyOption.REPLACE_EXISTING);
+				FileWriter imgTypeWriter = new FileWriter(new File(
+						"Resources/imgType.dat"));
+				imgTypeWriter.write(imageLoc.getAbsolutePath().substring(num));
+				imgTypeWriter.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
-				MainWindow.setIconImage(icon.getImage());
-				Path source = Paths.get(imageLoc.getAbsolutePath());
+		});
+
+		name.addActionListener(evt -> {
+			String nameWindow = JOptionPane.showInputDialog(MainWindow,
+					"Enter Title", null);
+			if (!name.equals("")) {
+				hubName = nameWindow;
+				setTitle(nameWindow);
+				setName(nameWindow);
 				try {
-					int num = imageLoc.getAbsolutePath().lastIndexOf(".");
-					Files.copy(
-							source,
-							Paths.get("Images/imageIcon"
-									+ imageLoc.getPath().substring(num)),
-							StandardCopyOption.REPLACE_EXISTING);
-					FileWriter imgTypeWriter = new FileWriter(new File(
-							"Resources/imgType.dat"));
-					imgTypeWriter.write(imageLoc.getAbsolutePath().substring(
-							num));
-					imgTypeWriter.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+					FileWriter write = new FileWriter(nameFile);
+					write.write(nameWindow);
+					write.close();
 
-			}
-
-		});
-
-		name.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				String name = JOptionPane.showInputDialog(MainWindow,
-						"Enter Title", null);
-				if (!name.equals("")) {
-					hubName = name;
-					setTitle(name);
-					setName(name);
-					try {
-						FileWriter write = new FileWriter(nameFile);
-						write.write(name);
-						write.close();
-
-					} catch (IOException e) {
-					}
+				} catch (IOException e) {
 				}
 			}
 		});
 
-		delete.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (deleteButtonsOff) {
-					deleteButtonsOff = false;
-					MainWindow.setTitle("Delete Button Mode");
-				} else {
-					deleteButtonsOff = true;
-					MainWindow.setTitle(hubName);
-
-				}
+		delete.addActionListener(e -> {
+			if (deleteButtonsOff) {
+				deleteButtonsOff = false;
+				MainWindow.setTitle("Delete Button Mode");
+			} else {
+				deleteButtonsOff = true;
+				MainWindow.setTitle(hubName);
 
 			}
 		});
@@ -313,7 +294,7 @@ public class MainWindow extends JFrame implements KeyListener {
 	 * Loads data from files (move to HubFiles)
 	 */
 	public static void loadFiles() {
-		
+
 		sourceList = new ArrayList<>();
 		System.gc();
 		try {

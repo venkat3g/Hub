@@ -144,15 +144,15 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	}
 
 	private void changeName() {
-		
+
 		HubButton local = this;
-		
-		final JPopupMenu jpm = new JPopupMenu("Change Name of "
+
+		JPopupMenu jpm = new JPopupMenu("Change Name of "
 				+ getProfile().getName());
 		jpm.setPopupSize(200, 100);
 		jpm.requestFocus();
 		JLabel aboveTextLabel = new JLabel("Enter Name: ");
-		final JTextArea shortcutField = new JTextArea(getProfile().getName());
+		JTextArea shortcutField = new JTextArea(getProfile().getName());
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
 
@@ -163,31 +163,24 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 		shortcutField.requestFocus();
 
-		okayButton.addActionListener(new ActionListener() {
+		okayButton.addActionListener(e -> {
+			String tmp = shortcutField.getText();
+			getProfile().changeName(tmp);
+			jpm.setVisible(false);
+			jpm.setEnabled(false);
+			MainWindow.loadFiles();
+			local.setText(tmp);
+			setComponentPopupMenu(null);
+			System.gc();
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				String tmp = shortcutField.getText();
-				getProfile().changeName(tmp);
-				jpm.setVisible(false);
-				jpm.setEnabled(false);
-				MainWindow.loadFiles();
-				local.setText(tmp);
-				setComponentPopupMenu(null);
-				System.gc();
-			}
 		});
 
-		cancelButton.addActionListener(new ActionListener() {
+		cancelButton.addActionListener( e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				jpm.setVisible(false);
-				jpm.setEnabled(false);
-				setComponentPopupMenu(null);
-				System.gc();
-			}
+			jpm.setVisible(false);
+			jpm.setEnabled(false);
+			setComponentPopupMenu(null);
+			System.gc();
 
 		});
 
@@ -200,7 +193,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 	}
 
-	private void changeImage(final HubButton e) {
+	private void changeImage(HubButton e) {
 
 		String[] types = { "png", "jpg" };
 		JFileChooser jfc = MainWindow.makeFileChooser("Images", types);
@@ -238,15 +231,15 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 	}
 
-	private void changeShortcut(final HubButton HubButton) {
+	private void changeShortcut(HubButton HubButton) {
 
-		final JPopupMenu jpm = new JPopupMenu("Add Shortcut to "
+		JPopupMenu jpm = new JPopupMenu("Add Shortcut to "
 				+ HubButton.getProfile().getName());
 		jpm.setPopupSize(200, 100);
 		jpm.requestFocus();
 		JLabel aboveTextLabel = new JLabel(
 				"Enter Shortcut (only modifier Shift)");
-		final JTextArea shortcutField = new JTextArea(
+		JTextArea shortcutField = new JTextArea(
 				findShortcutForName(HubButton.getProfile().getName()));
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
@@ -323,15 +316,12 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 		});
 
-		cancelButton.addActionListener(new ActionListener() {
+		cancelButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				jpm.setVisible(false);
-				jpm.setEnabled(false);
-				HubButton.setComponentPopupMenu(null);
-				System.gc();
-			}
+			jpm.setVisible(false);
+			jpm.setEnabled(false);
+			HubButton.setComponentPopupMenu(null);
+			System.gc();
 
 		});
 
@@ -348,8 +338,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 		String tmp = null;
 		try {
 			@SuppressWarnings("resource")
-			Scanner shortcutIO = new Scanner(
-					MainWindow.shortcutFile);
+			Scanner shortcutIO = new Scanner(MainWindow.shortcutFile);
 			while (shortcutIO.hasNextLine()) {
 
 				String line = shortcutIO.nextLine();
@@ -376,50 +365,21 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON3) {
 			JPopupMenu tmpMenu = new JPopupMenu();
-			final HubButton tmpButton = (HubButton) e.getComponent();
+			HubButton tmpButton = (HubButton) e.getComponent();
 
 			JMenuItem addIcons = new JMenuItem("Change Image");
 			JMenuItem addShortcut = new JMenuItem("Change Shortcut");
 			JMenuItem openFileLocation = new JMenuItem("Open Location");
 			JMenuItem changeButtonName = new JMenuItem("Change Name");
 
-			addIcons.addActionListener(new ActionListener() {
+			addIcons.addActionListener(e1 -> changeImage(tmpButton));
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeImage(tmpButton);
+			addShortcut.addActionListener(e1 -> changeShortcut(tmpButton));
 
-				}
+			openFileLocation
+					.addActionListener((ActionEvent e1) -> openButtonLocation(tmpButton));
 
-			});
-
-			addShortcut.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeShortcut(tmpButton);
-				}
-
-			});
-
-			openFileLocation.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					openButtonLocation(tmpButton);
-				}
-
-			});
-
-			changeButtonName.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					changeName();
-
-				}
-
-			});
+			changeButtonName.addActionListener(e1 -> changeName());
 
 			tmpMenu.add(addIcons);
 			tmpMenu.add(addShortcut);
