@@ -71,7 +71,7 @@ public class cPane extends JPanel {
 	}
 
 	@SuppressWarnings("resource")
-	private static String findImageForButton(JButton j) {
+	static String findImageForButton(JButton j) {
 		String line = "";
 		Scanner imagesIO;
 		String tmp = null;
@@ -91,7 +91,10 @@ public class cPane extends JPanel {
 
 	}
 
-	private void instantiateDefaultButtons(final JPanel pane,
+	/*
+	 * Adds default buttons to Pane
+	 */
+	protected void instantiateDefaultButtons(final JPanel pane,
 			final MainWindow frame) throws FileNotFoundException {
 
 		JButton addPrograms = new JButton();
@@ -194,7 +197,7 @@ public class cPane extends JPanel {
 		});
 
 		ImageIcon icon = new ImageIcon(
-				MainWindow.class.getResource("Coding Dock/image.png"));
+				cPane.class.getResource("Coding Dock/image.png"));
 
 		addPrograms.setIcon(icon);
 

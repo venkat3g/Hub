@@ -96,15 +96,18 @@ public class HubFiles {
 			throws IOException {
 		Scanner fileScan = new Scanner(sourceFile);
 		String line;
+		String name = HubButton.getProfile().toString();
+		System.out.println(name);
 
 		StringBuilder newFile = new StringBuilder("");
 		while (fileScan.hasNextLine()) {
 			line = fileScan.nextLine();
-			newFile.append(line + "\n");
+			if(!line.equals(name))
+				newFile.append(line + "\n");
 		}
 		FileWriter pw = new FileWriter(sourceFile);
-		pw.write(newFile.substring(0,
-				newFile.lastIndexOf(HubButton.getProfile().toString())));
+		pw.write(newFile.toString());
+		
 		pw.close();
 		fileScan.close();
 		line = null;

@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -160,6 +159,8 @@ public class MainWindow extends JFrame implements KeyListener {
 	}
 
 	/*
+	 *
+	 *	Instantiates the window frame
 	 *
 	 */
 
@@ -383,5 +384,6 @@ public class MainWindow extends JFrame implements KeyListener {
 			}
 		}
 	}
+	
 
 }
