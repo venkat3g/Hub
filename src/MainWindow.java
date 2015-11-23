@@ -30,8 +30,10 @@ public class MainWindow extends JFrame implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
-	static File sourceFile, imageFile, shortcutFile, nameFile,
-			imageFileType = new File("Resources/imgType.dat"),
+	private static File xmlFile;
+	static ArrayList<FileManager> list;
+	static File sourceFile, imageFile, shortcutFile, nameFile;
+	static File imageFileType = new File("Resources/imgType.dat"),
 			resourceFolder = new File("Resources"), imageFolder = new File(
 					"Images");
 
@@ -96,26 +98,35 @@ public class MainWindow extends JFrame implements KeyListener {
 	 */
 
 	private void instantiateFiles() throws IOException {
+		
+		xmlFile = FileManager.getFile();
+		
 
-		sourceFile = new File(resourceFolder.getPath() + "/sourceList.dat");
+		/*sourceFile = new File(resourceFolder.getPath() + "/sourceList.dat");
 		imageFile = new File(resourceFolder.getPath() + "/imageList.dat");
-		shortcutFile = new File(resourceFolder.getPath() + "/shortcutList.dat");
+		shortcutFile = new File(resourceFolder.getPath() + "/shortcutList.dat");*/
 		nameFile = new File(resourceFolder.getPath() + "/Hub_Name.txt");
 
+		if(!xmlFile.exists()){
+			try {
+				FileManager.createProgramFile();
+			} catch (Exception e) {
+				System.out.println("Error in Instantiating XML File");
+			}
+		}
+		if(xmlFile.length() == 0){
+			try {
+				FileManager.createProgramFile();
+			} catch (Exception e) {
+				System.out.println("Error in Instantiating XML File");
+			}
+		}
+		
 		if (!resourceFolder.exists()) {
 			resourceFolder.mkdirs();
 		}
 		if (!imageFolder.exists()) {
 			imageFolder.mkdirs();
-		}
-		if (!sourceFile.exists()) {
-			sourceFile.createNewFile();
-		}
-		if (!imageFile.exists()) {
-			imageFile.createNewFile();
-		}
-		if (!shortcutFile.exists()) {
-			shortcutFile.createNewFile();
 		}
 		if (!nameFile.exists()) {
 			nameFile.createNewFile();
@@ -295,56 +306,23 @@ public class MainWindow extends JFrame implements KeyListener {
 	 * Loads data from files (move to HubFiles)
 	 */
 	public static void loadFiles() {
-
+		//Instantiates sourceList
 		sourceList = new ArrayList<>();
-		System.gc();
+		list = new ArrayList<>();
 		try {
-
-			@SuppressWarnings("resource")
-			Scanner fileIO = new Scanner(sourceFile);
-			while (fileIO.hasNextLine()) {
-				int tmp = sourceList.size();
-				String sourceLine = fileIO.nextLine();
-				if (!sourceLine.equals("")) {
-					if (sourceLine.contains("File:")) {
-
-						HubFiles tempFile = new HubFiles(sourceLine,
-								HubFiles.PROGRAM);
-
-						HubButton temp = new HubButton(tempFile, tmp);
-
-						sourceList.add(temp);
-
-					} else if (sourceLine.contains("http://")
-							|| sourceLine.contains("https://")) {
-						HubFiles tempFile = new HubFiles(sourceLine,
-								HubFiles.WEBSITE);
-
-						HubButton temp = new HubButton(tempFile, tmp);
-
-						sourceList.add(temp);
-
-					}
-				}
+			FileManager.instantiateFile();
+			list = FileManager.getFileManagerList();
+			for(FileManager fm: list){
+				HubButton temp = new HubButton(fm);
+				sourceList.add(temp);
 			}
-			/*
-			 * int tmp = sourceList.size() + 2; tmp = tmp / 7; //TODO WIP if(tmp
-			 * > 2) changeGridLayout(tmp,gridX);
-			 */
-
-		} catch (IOException e) {
-
-			System.out.println("file not found");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
 
-	/*
-	 * private static void changeGridLayout(int gridY, int gridX){
-	 * layout.setColumns(gridX); layout.setRows(gridY);
-	 * 
-	 * }
-	 */// WIP
+	
 
 	public static void main(String[] args) {
 
@@ -370,8 +348,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
 		for (HubButton b : sourceList) {
 
-			String testCase = HubButton.findShortcutForName((b).getProfile()
-					.getName());
+			String testCase = b.getFProfile().getShortcut();
 
 			if (testCase == null) {
 				System.out.println("One or more files do not have shortcuts.");

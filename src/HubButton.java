@@ -7,18 +7,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -35,29 +30,27 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	private static final long serialVersionUID = 1L;
 
 	private HubFiles filesProfile;
-	private int id;
+	private FileManager profile;
 
-	public HubButton(HubFiles profile, int id) {
-		super(profile.getName());
-		filesProfile = profile;
-		this.id = id;
-	}
-
-	public int getID() {
-		return id;
+	public HubButton(FileManager profile) {
+		super(profile.getFileName());
+		this.profile = profile;
 	}
 
 	public HubFiles getProfile() {
 		return filesProfile;
 	}
 
+	public FileManager getFProfile() {
+		return profile;
+	}
+
 	public static void openButton(ActionEvent e) {
+		System.out.println(((HubButton) e.getSource()).getFProfile().getProgramType());
 		if ((e.getSource().getClass()) == HubButton.class
-				&& ((HubButton) e.getSource()).getProfile().getFileType()
-						.equals(HubFiles.PROGRAM)) {
-			System.out.println(((HubButton) e.getSource()).getProfile()
-					.getFileType());
-			String temp = ((HubButton) e.getSource()).getProfile().getPath();
+				&& ((HubButton) e.getSource()).getFProfile().getProgramType().equals(FileManager.PROGRAM_TYPE)) {
+			System.out.println(((HubButton) e.getSource()).getFProfile().getFilePath());
+			String temp = ((HubButton) e.getSource()).getFProfile().getFilePath();
 			System.out.println("Here " + temp);
 
 			try {
@@ -69,11 +62,10 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 			}
 		}
 		if ((e.getSource().getClass()) == HubButton.class
-				&& ((HubButton) e.getSource()).getProfile().getFileType()
-						.equals(HubFiles.WEBSITE)) {
-			System.out.println(((HubButton) e.getSource()).getProfile()
-					.getPath());
-			String url = ((HubButton) e.getSource()).getProfile().getPath();
+				&& ((HubButton) e.getSource()).getFProfile().getProgramType().equals(FileManager.WEBSITE_TYPE)) {
+
+			String url = ((HubButton) e.getSource()).getFProfile().getFilePath();
+			System.out.println(url);
 			if (Desktop.isDesktopSupported()) {
 				Desktop desktop = Desktop.getDesktop();
 				try {
@@ -93,11 +85,10 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 		}
 	}
 
-	// done
+	// Opens whatever button does
 	public static void openButton(HubButton b) {
-		if (b.getProfile().getFileType().equals(HubFiles.PROGRAM)) {
-			System.out.println(b.getProfile().getFileType());
-			String temp = b.getProfile().getPath();
+		if (b.getFProfile().getProgramType().equals(FileManager.PROGRAM_TYPE)) {
+			String temp = b.getFProfile().getFilePath();
 			System.out.println("Here " + temp);
 			try {
 				@SuppressWarnings("unused")
@@ -106,9 +97,8 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 				e1.printStackTrace();
 			}
 		}
-		if (b.getProfile().getFileType().equals(HubFiles.WEBSITE)) {
-			System.out.println(b.getProfile().getPath());
-			String url = b.getProfile().getPath();
+		if (b.getFProfile().getProgramType().equals(FileManager.WEBSITE_TYPE)) {
+			String url = b.getFProfile().getFilePath();
 			if (Desktop.isDesktopSupported()) {
 				Desktop desktop = Desktop.getDesktop();
 				try {
@@ -131,13 +121,11 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	public static void openButtonLocation(HubButton HubButton) {
 		System.out.println(HubButton.getProfile().getPath());
 		String buttonLocation = HubButton.getProfile().getPath();
-		String location = buttonLocation.substring(0,
-				buttonLocation.lastIndexOf("\\"));
+		String location = buttonLocation.substring(0, buttonLocation.lastIndexOf("\\"));
 		System.out.println(location);
 		try {
 			@SuppressWarnings("unused")
-			Process process = new ProcessBuilder("cmd", "/c", "explorer.exe "
-					+ location).start();
+			Process process = new ProcessBuilder("cmd", "/c", "explorer.exe " + location).start();
 		} catch (IOException e) {
 			System.out.println("openButtonLocation function/method has failed");
 		}
@@ -147,12 +135,11 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 		HubButton local = this;
 
-		JPopupMenu jpm = new JPopupMenu("Change Name of "
-				+ getProfile().getName());
+		JPopupMenu jpm = new JPopupMenu("Change Name of " + getFProfile().getFileName());
 		jpm.setPopupSize(200, 100);
 		jpm.requestFocus();
 		JLabel aboveTextLabel = new JLabel("Enter Name: ");
-		JTextArea shortcutField = new JTextArea(getProfile().getName());
+		JTextArea shortcutField = new JTextArea(getFProfile().getFileName());
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
 
@@ -165,7 +152,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 		okayButton.addActionListener(e -> {
 			String tmp = shortcutField.getText();
-			getProfile().changeName(tmp);
+			getFProfile().setFileName(tmp);
 			jpm.setVisible(false);
 			jpm.setEnabled(false);
 			MainWindow.loadFiles();
@@ -175,7 +162,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 		});
 
-		cancelButton.addActionListener( e -> {
+		cancelButton.addActionListener(e -> {
 
 			jpm.setVisible(false);
 			jpm.setEnabled(false);
@@ -207,21 +194,22 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 			File imagesPath = new File("Images\\");
 			imagesPath.mkdirs();
 
-			Files.copy(
-					source,
-					Paths.get("Images/"
-							+ imageString.substring(imageString
-									.lastIndexOf("\\") + 1)),
+			Files.copy(source, Paths.get("Images/" + imageString.substring(imageString.lastIndexOf("\\") + 1)),
 					StandardCopyOption.REPLACE_EXISTING);
-			PrintWriter pw = new PrintWriter(new FileWriter(
-					MainWindow.imageFile, true));
-			pw.println("Images/"
-					+ imageString.substring(imageString.lastIndexOf("\\") + 1)
-					+ " , Name: " + (e).getProfile().getName());
-			pw.close();
+			/*
+			 * PrintWriter pw = new PrintWriter(new
+			 * FileWriter(MainWindow.imageFile, true)); pw.println("Images/" +
+			 * imageString.substring(imageString.lastIndexOf("\\") + 1) + " ,
+			 * Name: " + (e).getProfile().getName()); pw.close();
+			 */
+			// System.out.println(getFProfile());
+			getFProfile().setImageLoc(imagesPath.getPath() + imageString.substring(imageString.lastIndexOf("\\")));
 			Image image = icon.getImage();
-			Image newimg = image.getScaledInstance(45, 45,
-					java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+			Image newimg = image.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH); // scale
+																							// it
+																							// the
+																							// smooth
+																							// way
 
 			ImageIcon newIcon = new ImageIcon(newimg);
 			(e).setIcon(newIcon);
@@ -233,14 +221,11 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 	private void changeShortcut(HubButton HubButton) {
 
-		JPopupMenu jpm = new JPopupMenu("Add Shortcut to "
-				+ HubButton.getProfile().getName());
+		JPopupMenu jpm = new JPopupMenu("Add Shortcut to " + HubButton.getFProfile().getShortcut());
 		jpm.setPopupSize(200, 100);
 		jpm.requestFocus();
-		JLabel aboveTextLabel = new JLabel(
-				"Enter Shortcut (only modifier Shift)");
-		JTextArea shortcutField = new JTextArea(
-				findShortcutForName(HubButton.getProfile().getName()));
+		JLabel aboveTextLabel = new JLabel("Enter Shortcut (only modifier Shift)");
+		JTextArea shortcutField = new JTextArea(HubButton.getFProfile().getShortcut());
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
 
@@ -292,12 +277,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 				String tmp = shortcutField.getText();
 				if (testCase(tmp)) {
-					HubFiles shortcuts = new HubFiles("Shortcut:" + tmp
-							+ " , Name: " + HubButton.getProfile().getName(),
-							HubFiles.SHORTCUTS);
-					File f = MainWindow.shortcutFile;
-
-					shortcuts.addToFile(f);
+					getFProfile().setShortcut(tmp);
 					jpm.setVisible(false);
 					HubButton.setComponentPopupMenu(null);
 					System.gc();
@@ -307,8 +287,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 			private boolean testCase(String tmp) {
 				if (tmp.length() == 1)
 					return true;
-				System.out.println(""
-						+ tmp.substring(tmp.lastIndexOf(" + ") + 3).length());
+				System.out.println("" + tmp.substring(tmp.lastIndexOf(" + ") + 3).length());
 				if (tmp.substring(tmp.lastIndexOf(" + ") + 3).length() == 1)
 					return true;
 				return false;
@@ -334,25 +313,6 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 	}
 
-	static String findShortcutForName(String name) {
-		String tmp = null;
-		try {
-			@SuppressWarnings("resource")
-			Scanner shortcutIO = new Scanner(MainWindow.shortcutFile);
-			while (shortcutIO.hasNextLine()) {
-
-				String line = shortcutIO.nextLine();
-
-				if (line.contains(name))
-					tmp = (new HubFiles(line, HubFiles.SHORTCUTS)).getPath();
-			}
-		} catch (FileNotFoundException e) {
-			System.out.println("Cannot find Shortcut for key.");
-		}
-
-		return tmp;
-	}
-
 	@Override
 	public void mouseClicked(MouseEvent e) {
 	}
@@ -376,14 +336,13 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 			addShortcut.addActionListener(e1 -> changeShortcut(tmpButton));
 
-			openFileLocation
-					.addActionListener((ActionEvent e1) -> openButtonLocation(tmpButton));
+			openFileLocation.addActionListener((ActionEvent e1) -> openButtonLocation(tmpButton));
 
 			changeButtonName.addActionListener(e1 -> changeName());
 
 			tmpMenu.add(addIcons);
 			tmpMenu.add(addShortcut);
-			if (tmpButton.getProfile().getFileType() == HubFiles.PROGRAM)
+			if (tmpButton.getFProfile().getProgramType() == FileManager.PROGRAM_TYPE)
 				tmpMenu.add(openFileLocation);
 			tmpMenu.add(changeButtonName);
 			tmpMenu.setVisible(true);
@@ -406,6 +365,5 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 			openButton(e);
 		else
 			cPane.removeButton(this);
-		System.out.println("ID: " + getID());
 	}
 }
