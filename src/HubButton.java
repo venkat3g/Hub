@@ -29,16 +29,11 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private HubFiles filesProfile;
 	private FileManager profile;
 
 	public HubButton(FileManager profile) {
 		super(profile.getFileName());
 		this.profile = profile;
-	}
-
-	public HubFiles getProfile() {
-		return filesProfile;
 	}
 
 	public FileManager getFProfile() {
@@ -119,9 +114,8 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	}
 
 	public static void openButtonLocation(HubButton HubButton) {
-		System.out.println(HubButton.getProfile().getPath());
-		String buttonLocation = HubButton.getProfile().getPath();
-		String location = buttonLocation.substring(0, buttonLocation.lastIndexOf("\\"));
+		String location = HubButton.getFProfile().getFilePath().substring(0,
+				HubButton.getFProfile().getFilePath().lastIndexOf("\\"));
 		System.out.println(location);
 		try {
 			@SuppressWarnings("unused")
@@ -342,7 +336,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 			tmpMenu.add(addIcons);
 			tmpMenu.add(addShortcut);
-			if (tmpButton.getFProfile().getProgramType() == FileManager.PROGRAM_TYPE)
+			if (tmpButton.getFProfile().getProgramType().equals(FileManager.PROGRAM_TYPE))
 				tmpMenu.add(openFileLocation);
 			tmpMenu.add(changeButtonName);
 			tmpMenu.setVisible(true);
