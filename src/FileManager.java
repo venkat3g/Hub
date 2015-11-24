@@ -10,12 +10,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 
 @SuppressWarnings("unused")
-public class FileManager implements Serializable{
+public class FileManager {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2292930000016794120L;
 	private String fileName;
 	private String filePath;
 	private String shortcut;
