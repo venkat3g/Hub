@@ -2,6 +2,9 @@ package Test;
 
 import java.net.*;
 import java.util.ArrayList;
+
+import com.test.FileManager;
+
 import java.io.*;
 
 //TODO work on implementation
@@ -59,15 +62,4 @@ public class Server extends Thread {
 		}
 	}
 
-	public static void main(String[] args) {
-		// int port = Integer.parseInt(args[0]);
-		try {
-			Thread t = new Server(1111);
-			//Thread stop = getStopper();
-			t.start();
-			//stop.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }

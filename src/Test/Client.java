@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
-
+import com.test.FileManager;
 //TODO work on then implement for phone
 public class Client {
 	public static void main(String[] args) {
