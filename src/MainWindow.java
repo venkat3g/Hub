@@ -24,6 +24,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import Test.Server;
+
 /*
 	Additions:
  		-Access content/shortcuts from phone
@@ -57,7 +59,7 @@ public class MainWindow extends JFrame implements KeyListener {
 	 */
 
 	public MainWindow() {
-		
+
 		try {
 			instantiateFiles();
 			useFileName();
@@ -178,7 +180,7 @@ public class MainWindow extends JFrame implements KeyListener {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(this);
-			
+
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
@@ -293,7 +295,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
 	static JFileChooser makeFileChooser(String desc, String[] ext) {
 		JFileChooser jfc = new JFileChooser();
-		
+
 		jfc.setCurrentDirectory(new File("C:/"));
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(desc, ext);
 
@@ -324,20 +326,21 @@ public class MainWindow extends JFrame implements KeyListener {
 	}
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Window window = new Window();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+
 		if (args.length == 1)
 			pInstance = new MainWindow(args[0]);
 		else
 			pInstance = new MainWindow();
+
+		Thread server;
+
+		try {
+			server = new Server(1111);
+			server.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override

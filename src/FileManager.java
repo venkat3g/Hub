@@ -1,5 +1,8 @@
 
+import java.awt.Desktop;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.*;
@@ -275,6 +278,39 @@ public class FileManager implements Serializable {
 
 	public Node getNode() {
 		return node;
+	}
+
+	public void open() {
+
+		if (getProgramType().equals(FileManager.PROGRAM_TYPE)) {
+			String temp = getFilePath();
+			try {
+				@SuppressWarnings("unused")
+				Process process = new ProcessBuilder("cmd", "/c", temp).start();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+		if (getProgramType().equals(FileManager.WEBSITE_TYPE)) {
+			String url = getFilePath();
+			if (Desktop.isDesktopSupported()) {
+				Desktop desktop = Desktop.getDesktop();
+				try {
+					desktop.browse(new URI(url));
+				} catch (IOException | URISyntaxException e1) {
+
+					e1.printStackTrace();
+				}
+			} else {
+				Runtime runtime = Runtime.getRuntime();
+				try {
+					runtime.exec("xdg-open " + url);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 	@Override

@@ -13,32 +13,48 @@ public class Client {
 		String serverName = "localhost";
 		// int port = Integer.parseInt(args[1]);
 		int port = 1111;
+
+		// Try statement to catch Class not found exception from server, input
+		// (instance), also to catch input out put exceptions from server
+		// connection
 		try {
+			// Creates socket instance (also a client) to the server
 			Socket client = new Socket(serverName, port);
+			// Prints that client successfully connected
 			System.out.println("Connected " + client.getRemoteSocketAddress());
+			// Creates instances that will allow server and client to communicate
 			OutputStream outToServer = client.getOutputStream();
 			InputStream inFromServer = client.getInputStream();
-			ObjectInputStream in = new ObjectInputStream(inFromServer);
+			ObjectInputStream in = new ObjectInputStream(inFromServer);	// Gets objects from Server
+			
+			// An instance of object that the server sends the client
 			Object input = in.readObject();
 			if (input instanceof ArrayList) {
-				for (Object fm : (ArrayList<?>)input) {
+				// Prints out the ArrayList that the server should send the client
+				for (Object fm : (ArrayList<?>) input) {
 					System.out.println(((FileManager) fm).getFileName());
 				}
 			}
+			
+			// Requests that client chooses a program from the list.
 			System.out.println("Choose a program: ");
 			Scanner keyboard = new Scanner(System.in);
-			String choice = keyboard.next();
+			String choice = keyboard.nextLine();
+			
 			FileManager c = null;
-			for(Object fm: (ArrayList<?>)input)
-				if(choice.equals(((FileManager)fm).getFileName()))
-					c = (FileManager)fm;
+			// If user correctly chooses a program from the list a FileManager is attached
+			for (Object fm : (ArrayList<?>) input)
+				if (choice.equals(((FileManager) fm).getFileName()))
+					c = (FileManager) fm;
 			keyboard.close();
-			ObjectOutputStream out = new ObjectOutputStream(outToServer);
-			out.writeObject(c);
+			
+			
+			ObjectOutputStream out = new ObjectOutputStream(outToServer); // Sends objects to Server
+			out.writeObject(c); // Sends the FileManager that corresponds to the Program picked by client
+			
+			// Closes socket (client) connection to server
 			client.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
