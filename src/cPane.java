@@ -15,9 +15,9 @@ import javax.swing.filechooser.FileSystemView;
 public class cPane extends JPanel {
 
 	/**
-	 * TODO change layout once number of items changes
+	 
 	 */
-	int scaled_value = 45;
+	int scaled_value = 35;
 	private static final long serialVersionUID = 1L;
 	static cPane cPane;
 	static MainWindow pInstance;
@@ -25,11 +25,13 @@ public class cPane extends JPanel {
 	@SuppressWarnings("static-access")
 	public cPane(MainWindow frame, GridLayout layout) {
 		pInstance = frame;
-		this.cPane = this;
+		cPane.cPane = this;
 
 		setLayout(layout);
 		try {
+
 			addButtons(this);
+
 			instantiateDefaultButtons(this, frame);
 
 		} catch (Exception e) {
@@ -39,11 +41,14 @@ public class cPane extends JPanel {
 	}
 
 	private void addButtons(cPane cPane) {
+
 		for (HubButton h : MainWindow.sourceList) {
 			h.addActionListener(h);
 			h.addMouseListener(h);
+
 			if (findImageForButton(h) != null) {
-				String imageFileName = findImageForButton(h); // transform it
+				String imageFileName = findImageForButton(h); // transform
+																// it
 				Image image = (new ImageIcon(imageFileName)).getImage();
 
 				if (!imageFileName.contains("doNotScale")) {
@@ -59,10 +64,13 @@ public class cPane extends JPanel {
 				}
 
 			}
-
+			// Displays the shortcut of the button tool tip
+			if (!h.getFProfile().getShortcut().isEmpty())
+				h.setToolTipText("Shortcut: " + h.getFProfile().getShortcut());
 			cPane.add(h);
 		}
 
+		System.gc();
 	}
 
 	static String findImageForButton(JButton j) {
@@ -80,97 +88,107 @@ public class cPane extends JPanel {
 		JButton webs = new JButton("add Websites");
 
 		addPrograms.addActionListener(evt -> {
-			// Makes a JFileChooser
-			String[] types = { "exe", "lnk" };
-			JFileChooser jfc = MainWindow.makeFileChooser("Executables & Shorcuts", types);
 
-			int returnValue = jfc.showOpenDialog(frame);
-			// Checks if user hits okay
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
+			new Thread(() -> {// Makes a JFileChooser
 
-				String programPath = jfc.getSelectedFile().toString();
-				// Gets File name
-				int i = 0;
-				while (programPath.indexOf("\\", i) != -1) {
-					i++;
-					programPath.indexOf("\\", i);
+				String[] types = { "exe", "lnk" };
+				JFileChooser jfc = MainWindow.makeFileChooser("Executables & Shorcuts", types);
+
+				int returnValue = jfc.showOpenDialog(frame);
+				// Checks if user hits okay
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+
+					String programPath = jfc.getSelectedFile().toString();
+					// Gets File name
+					int i = 0;
+					while (programPath.indexOf("\\", i) != -1) {
+						i++;
+						programPath.indexOf("\\", i);
+
+					}
+					String fileName = programPath.substring(i);
+
+					// Gets new List
+					try {
+						MainWindow.list = FileManager.addProgram(fileName, programPath, " ", " ",
+								FileManager.PROGRAM_TYPE);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					// Loads all buttons w/ new button
+					MainWindow.loadFiles();
+					HubButton tempButton = MainWindow.sourceList.get(MainWindow.list.size() - 1);
+					tempButton.getFProfile().setImageLoc("Images/" + fileName + ".doNotScale.png");
+					tempButton.addMouseListener(tempButton);
+					tempButton.addActionListener(tempButton);
+					pane.add(tempButton, MainWindow.sourceList.size() - 1);
+
+					// Gets image from program selected
+					ImageIcon tempIcon = (ImageIcon) FileSystemView.getFileSystemView()
+							.getSystemIcon(new File(programPath));
+
+					// Creates a buffered image for saving to Images(resource
+					// folder)
+					BufferedImage bi = new BufferedImage(tempIcon.getIconWidth(), tempIcon.getIconHeight(),
+							BufferedImage.TYPE_4BYTE_ABGR);
+
+					Graphics2D g2 = bi.createGraphics();
+					g2.drawImage(tempIcon.getImage(), 0, 0, null);
+					g2.dispose();
+
+					try {
+						ImageIO.write(bi, "png", new File("Images/" + fileName + ".doNotScale.png"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					// Sets Images for Button
+					tempButton.setIcon(tempIcon); // Too small
+					// Shows additions to the JFrame
+					pane.revalidate();
+					frame.pack();
 
 				}
-				String fileName = programPath.substring(i);
+				frame.requestFocus();
 
-				// Gets new List
-				try {
-					MainWindow.list = FileManager.addProgram(fileName, programPath, " ", " ", FileManager.PROGRAM_TYPE);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				// Loads all buttons w/ new button
-				MainWindow.loadFiles();
-				HubButton tempButton = MainWindow.sourceList.get(MainWindow.list.size() - 1);
-				tempButton.getFProfile().setImageLoc("Images/" + fileName + ".doNotScale.png");
-				tempButton.addMouseListener(tempButton);
-				tempButton.addActionListener(tempButton);
-				pane.add(tempButton, MainWindow.sourceList.size() - 1);
-
-				// Gets image from program selected
-				ImageIcon tempIcon = (ImageIcon) FileSystemView.getFileSystemView()
-						.getSystemIcon(new File(programPath));
-
-				// Creates a buffered image for saving to Images(resource
-				// folder)
-				BufferedImage bi = new BufferedImage(tempIcon.getIconWidth(), tempIcon.getIconHeight(),
-						BufferedImage.TYPE_4BYTE_ABGR);
-
-				Graphics2D g2 = bi.createGraphics();
-				g2.drawImage(tempIcon.getImage(), 0, 0, null);
-				g2.dispose();
-
-				try {
-					ImageIO.write(bi, "png", new File("Images/" + fileName + ".doNotScale.png"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				// Sets Images for Button
-				tempButton.setIcon(tempIcon); // Too small
-				// Shows additions to the JFrame
-				pane.revalidate();
-				frame.pack();
-
-			}
-			frame.requestFocus();
+			}, "Add Program").start();
 		}
 
 		);
 
 		webs.addActionListener(e -> {
-			
-			// Makes JOptionPane for obtaining Website Button
-			String URL = JOptionPane.showInputDialog(frame, "Website URL: ", null);
-			// Adds http: to entries without http: prefix
-			if (!URL.contains("http://") || !URL.contains("https://"))
-				URL = "http://" + URL;
-			String name = JOptionPane.showInputDialog(frame, "Name Site: ", null);
+			new Thread(() -> {
+				// Makes JOptionPane for obtaining Website Button
+				String URL = JOptionPane.showInputDialog(frame, "Website URL: ", null);
+				// Adds http: to entries without http: prefix
+				if (URL == null)
+					;
+				else {
+					if (!URL.contains("http://") || !URL.contains("https://"))
+						URL = "http://" + URL;
+					String name = JOptionPane.showInputDialog(frame, "Name Site: ", null);
 
-			// Gets new list
-			try {
-				MainWindow.list = FileManager.addProgram(name, URL, "", "", FileManager.WEBSITE_TYPE);
-			} catch (Exception e1) {
+					// Gets new list
+					try {
+						MainWindow.list = FileManager.addProgram(name, URL, "", "", FileManager.WEBSITE_TYPE);
+					} catch (Exception e1) {
 
-				e1.printStackTrace();
-			}
-			// Loads buttons w/ new button
-			MainWindow.loadFiles();
-			HubButton tempHubButton = MainWindow.sourceList.get(MainWindow.list.size() - 1);
+						e1.printStackTrace();
+					}
+					// Loads buttons w/ new button
+					MainWindow.loadFiles();
+					HubButton tempHubButton = MainWindow.sourceList.get(MainWindow.list.size() - 1);
 
-			tempHubButton.addActionListener(tempHubButton);
-			tempHubButton.addMouseListener(tempHubButton);
+					tempHubButton.addActionListener(tempHubButton);
+					tempHubButton.addMouseListener(tempHubButton);
 
-			pane.add(tempHubButton, MainWindow.sourceList.size() - 1);
-			frame.revalidate();
-			frame.pack();
-			frame.requestFocus();
+					pane.add(tempHubButton, MainWindow.sourceList.size() - 1);
+					frame.revalidate();
+					frame.pack();
+					frame.requestFocus();
 
+				}
+			}, "Add Website").start();
 		});
 
 		ImageIcon icon = new ImageIcon(cPane.class.getResource("Coding Dock/image.png"));
@@ -190,7 +208,6 @@ public class cPane extends JPanel {
 		}
 
 		cPane.remove(hubButton);
-		//MainWindow.loadFiles();
 		cPane.revalidate();
 		pInstance.pack();
 	}

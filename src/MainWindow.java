@@ -1,3 +1,4 @@
+import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -18,6 +19,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -33,9 +35,8 @@ public class MainWindow extends JFrame implements KeyListener {
 	private static File xmlFile;
 	static ArrayList<FileManager> list;
 	static File sourceFile, imageFile, shortcutFile, nameFile;
-	static File imageFileType = new File("Resources/imgType.dat"),
-			resourceFolder = new File("Resources"), imageFolder = new File(
-					"Images");
+	static File imageFileType = new File("Resources/imgType.dat"), resourceFolder = new File("Resources"),
+			imageFolder = new File("Images");
 
 	static ArrayList<HubButton> sourceList;
 
@@ -56,16 +57,18 @@ public class MainWindow extends JFrame implements KeyListener {
 	 */
 
 	public MainWindow() {
-
+		
 		try {
 			instantiateFiles();
 			useFileName();
-		} catch (IOException e) {
-			System.out.println("One or more files failed to instatiate.");
+			System.gc();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		try {
 			instantiateFrame();
+			System.gc();
 		} catch (FileNotFoundException e) {
 
 			e.printStackTrace();
@@ -98,30 +101,26 @@ public class MainWindow extends JFrame implements KeyListener {
 	 */
 
 	private void instantiateFiles() throws IOException {
-		
-		xmlFile = FileManager.getFile();
-		
 
-		/*sourceFile = new File(resourceFolder.getPath() + "/sourceList.dat");
-		imageFile = new File(resourceFolder.getPath() + "/imageList.dat");
-		shortcutFile = new File(resourceFolder.getPath() + "/shortcutList.dat");*/
+		xmlFile = FileManager.getFile();
+
 		nameFile = new File(resourceFolder.getPath() + "/Hub_Name.txt");
 
-		if(!xmlFile.exists()){
+		if (!xmlFile.exists()) {
 			try {
 				FileManager.createProgramFile();
 			} catch (Exception e) {
 				System.out.println("Error in Instantiating XML File");
 			}
 		}
-		if(xmlFile.length() == 0){
+		if (xmlFile.length() == 0) {
 			try {
 				FileManager.createProgramFile();
 			} catch (Exception e) {
 				System.out.println("Error in Instantiating XML File");
 			}
 		}
-		
+
 		if (!resourceFolder.exists()) {
 			resourceFolder.mkdirs();
 		}
@@ -171,18 +170,21 @@ public class MainWindow extends JFrame implements KeyListener {
 
 	/*
 	 *
-	 *	Instantiates the window frame
+	 * Instantiates the window frame
 	 *
 	 */
 
 	private void instantiateFrame() throws FileNotFoundException {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			SwingUtilities.updateComponentTreeUI(this);
+			
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
 		}
 
-		layout = new GridLayout(2, 2);
+		layout = new GridLayout(2, 1);
 
 		loadFiles();
 
@@ -240,13 +242,9 @@ public class MainWindow extends JFrame implements KeyListener {
 			Path source = Paths.get(imageLoc.getAbsolutePath());
 			try {
 				int num = imageLoc.getAbsolutePath().lastIndexOf(".");
-				Files.copy(
-						source,
-						Paths.get("Images/imageIcon"
-								+ imageLoc.getPath().substring(num)),
+				Files.copy(source, Paths.get("Images/imageIcon" + imageLoc.getPath().substring(num)),
 						StandardCopyOption.REPLACE_EXISTING);
-				FileWriter imgTypeWriter = new FileWriter(new File(
-						"Resources/imgType.dat"));
+				FileWriter imgTypeWriter = new FileWriter(new File("Resources/imgType.dat"));
 				imgTypeWriter.write(imageLoc.getAbsolutePath().substring(num));
 				imgTypeWriter.close();
 			} catch (IOException e1) {
@@ -256,8 +254,7 @@ public class MainWindow extends JFrame implements KeyListener {
 		});
 
 		name.addActionListener(evt -> {
-			String nameWindow = JOptionPane.showInputDialog(MainWindow,
-					"Enter Title", null);
+			String nameWindow = JOptionPane.showInputDialog(MainWindow, "Enter Title", null);
 			if (!name.equals("")) {
 				hubName = nameWindow;
 				setTitle(nameWindow);
@@ -285,6 +282,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
 		menubar.add(file);
 		menubar.add(edit);
+		System.gc();
 		return menubar;
 
 	}
@@ -295,10 +293,12 @@ public class MainWindow extends JFrame implements KeyListener {
 
 	static JFileChooser makeFileChooser(String desc, String[] ext) {
 		JFileChooser jfc = new JFileChooser();
+		
 		jfc.setCurrentDirectory(new File("C:/"));
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(desc, ext);
 
 		jfc.setFileFilter(filter);
+		System.gc();
 		return jfc;
 	}
 
@@ -306,26 +306,34 @@ public class MainWindow extends JFrame implements KeyListener {
 	 * Loads data from files (move to HubFiles)
 	 */
 	public static void loadFiles() {
-		//Instantiates sourceList
+		// Instantiates sourceList
 		sourceList = new ArrayList<>();
 		list = new ArrayList<>();
 		try {
 			FileManager.instantiateFile();
 			list = FileManager.getFileManagerList();
-			for(FileManager fm: list){
+			for (FileManager fm : list) {
 				HubButton temp = new HubButton(fm);
 				sourceList.add(temp);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.gc();
 
 	}
 
-	
-
 	public static void main(String[] args) {
-
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Window window = new Window();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		if (args.length == 1)
 			pInstance = new MainWindow(args[0]);
 		else
@@ -354,13 +362,10 @@ public class MainWindow extends JFrame implements KeyListener {
 				System.out.println("One or more files do not have shortcuts.");
 			} else if (tmp.equals(testCase)) {
 				HubButton.openButton(b);
-				System.out.println("done");
 			} else if (testCase.endsWith(tmp)) {
 				HubButton.openButton(b);
-				System.out.println("done");
 			}
 		}
 	}
-	
 
 }

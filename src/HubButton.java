@@ -1,4 +1,5 @@
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +28,8 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	/**
 	 * 
 	 */
+	private int width = 200;
+	private int height = 50;
 	private static final long serialVersionUID = 1L;
 
 	private FileManager profile;
@@ -34,6 +37,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	public HubButton(FileManager profile) {
 		super(profile.getFileName());
 		this.profile = profile;
+		this.setPreferredSize(new Dimension(width, height));
 	}
 
 	public FileManager getFProfile() {
@@ -41,12 +45,9 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	}
 
 	public static void openButton(ActionEvent e) {
-		System.out.println(((HubButton) e.getSource()).getFProfile().getProgramType());
 		if ((e.getSource().getClass()) == HubButton.class
 				&& ((HubButton) e.getSource()).getFProfile().getProgramType().equals(FileManager.PROGRAM_TYPE)) {
-			System.out.println(((HubButton) e.getSource()).getFProfile().getFilePath());
 			String temp = ((HubButton) e.getSource()).getFProfile().getFilePath();
-			System.out.println("Here " + temp);
 
 			try {
 				@SuppressWarnings("unused")
@@ -60,7 +61,6 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 				&& ((HubButton) e.getSource()).getFProfile().getProgramType().equals(FileManager.WEBSITE_TYPE)) {
 
 			String url = ((HubButton) e.getSource()).getFProfile().getFilePath();
-			System.out.println(url);
 			if (Desktop.isDesktopSupported()) {
 				Desktop desktop = Desktop.getDesktop();
 				try {
@@ -84,7 +84,6 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	public static void openButton(HubButton b) {
 		if (b.getFProfile().getProgramType().equals(FileManager.PROGRAM_TYPE)) {
 			String temp = b.getFProfile().getFilePath();
-			System.out.println("Here " + temp);
 			try {
 				@SuppressWarnings("unused")
 				Process process = new ProcessBuilder("cmd", "/c", temp).start();
@@ -116,7 +115,6 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 	public static void openButtonLocation(HubButton HubButton) {
 		String location = HubButton.getFProfile().getFilePath().substring(0,
 				HubButton.getFProfile().getFilePath().lastIndexOf("\\"));
-		System.out.println(location);
 		try {
 			@SuppressWarnings("unused")
 			Process process = new ProcessBuilder("cmd", "/c", "explorer.exe " + location).start();
@@ -219,7 +217,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 		jpm.setPopupSize(200, 100);
 		jpm.requestFocus();
 		JLabel aboveTextLabel = new JLabel("Enter Shortcut (only modifier Shift)");
-		JTextArea shortcutField = new JTextArea(HubButton.getFProfile().getShortcut());
+		JTextArea shortcutField = new JTextArea(HubButton.getFProfile().getShortcut().trim());
 		JButton okayButton = new JButton("Okay");
 		JButton cancelButton = new JButton("Cancel");
 
@@ -228,7 +226,7 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 		jpm.add(okayButton);
 		jpm.add(cancelButton);
 
-		shortcutField.requestFocus();
+		
 
 		shortcutField.addKeyListener(new KeyListener() {
 
@@ -243,6 +241,8 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 			@Override
 			public void keyReleased(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER)
+					okayButton.doClick();
 				if (checkForValue(e)) {
 					if (e.getModifiers() == 0)
 						shortcutField.setText("" + e.getKeyChar());
@@ -268,13 +268,16 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				String tmp = shortcutField.getText();
+				System.out.println(e.getActionCommand());
+				
+				String tmp = shortcutField.getText().trim();
 				if (testCase(tmp)) {
 					getFProfile().setShortcut(tmp);
 					jpm.setVisible(false);
 					HubButton.setComponentPopupMenu(null);
+					HubButton.setToolTipText("Shortcut: " + HubButton.getFProfile().getShortcut());
 					System.gc();
+					
 				}
 			}
 
@@ -304,6 +307,9 @@ public class HubButton extends JButton implements ActionListener, MouseListener 
 		jpm.setBorderPainted(true);
 
 		jpm.show(HubButton, 0, 0);
+		
+		shortcutField.requestFocus();
+		shortcutField.setSize(100, 30);
 
 	}
 

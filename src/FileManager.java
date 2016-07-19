@@ -6,60 +6,81 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
-@SuppressWarnings("unused")
-public class FileManager {
+public class FileManager implements Serializable {
 
+	// Instance fields
 	private String fileName;
 	private String filePath;
 	private String shortcut;
 	private String programType;
-	private NodeList node;
-	public static final String PROGRAM_TYPE = "Program";
-	public static final String WEBSITE_TYPE = "Website";
+	private Node node;
 	private String imageLoc;
 
-	private static String PROGRAM_FILE = "Resources/test.xml";
+	// Class fields
+	private static final long serialVersionUID = -2292930000016794120L;
+	public static final String PROGRAM_TYPE = "Program";
+	public static final String WEBSITE_TYPE = "Website";
+	private static String PROGRAM_FILE = "Resources/hub_info.xml";
 	private static File file = new File(PROGRAM_FILE);
-
 	private static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	private static DocumentBuilder documentBuilder;
 	private static Document document;
 
 	private static ArrayList<FileManager> fileManagerList = new ArrayList<>(0);
 
-	public static void main(String[] args) throws Exception {
-		// createProgramFile();
-		instantiateFile();
-		System.out.println(fileManagerList);
-		// for(int i = 0; i < 10; i++)
-		// addProgram("" + i, " ", " ", " ", " ");
-		/*
-		 * for (int i = 0; i < fileManagerList.size(); i += 3) { FileManager fm
-		 * = fileManagerList.get(i); fm.removeProgram(); }
-		 */
-		System.out.println(fileManagerList.size());
+	static {
+		if (file.exists()) {
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			try {
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				document = documentBuilder.parse(file);
+			} catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				file.createNewFile();
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				document = documentBuilder.newDocument();
+				createProgramFile();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 	}
 
 	private FileManager(NodeList programNode) {
-		node = programNode;
 
-		fileName = programNode.item(1).getTextContent();
+		node = programNode.item(0).getParentNode();
 
-		filePath = programNode.item(3).getTextContent();
+		Element eNode = (Element) node;
 
-		shortcut = programNode.item(5).getTextContent();
+		fileName = eNode.getElementsByTagName("Name").item(0).getTextContent();
 
-		imageLoc = programNode.item(7).getTextContent();
+		filePath = eNode.getElementsByTagName("Location").item(0).getTextContent();
 
-		programType = programNode.item(9).getTextContent();
+		shortcut = eNode.getElementsByTagName("Shortcut").item(0).getTextContent();
+
+		imageLoc = eNode.getElementsByTagName("ImageLocation").item(0).getTextContent();
+
+		programType = eNode.getElementsByTagName("Type").item(0).getTextContent();
 
 	}
 
-	private FileManager(String programName, String path, String shortcut2, String image, String type, NodeList node) {
+	private FileManager(String programName, String path, String shortcut2, String image, String type, Node node) {
+
 		this.node = node;
 
 		fileName = programName;
@@ -73,25 +94,28 @@ public class FileManager {
 		programType = type;
 	}
 
+	// Used to instantiate/read from xml file
 	public static void instantiateFile() throws Exception {
 
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		document = documentBuilder.parse(file);
+		// Used to get rid of white space created from removing 'Programs'
+		XPath xp = XPathFactory.newInstance().newXPath();
+		NodeList nl = (NodeList) xp.evaluate("//text()[normalize-space(.)='']", document, XPathConstants.NODESET);
+		for (int i = 0; i < nl.getLength(); ++i) {
+			Node node = nl.item(i);
+			node.getParentNode().removeChild(node);
+		}
 
+		// Gathers a list of nodes from xml file and creates a
+		// ArrayList<FileManager> to be used
 		NodeList list = document.getElementsByTagName("Program");
 		fileManagerList = new ArrayList<>(0);
-		System.gc();
 		for (int i = 0; i < list.getLength(); i++) {
 			fileManagerList.add(new FileManager(list.item(i).getChildNodes()));
 		}
-
+		System.gc();
 	}
 
 	public static void createProgramFile() throws Exception {
-		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		document = documentBuilder.newDocument();
 
 		Element element = document.createElement("ProgramList");
 		document.appendChild(element);
@@ -143,7 +167,7 @@ public class FileManager {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.transform(source, streamResult);
 
-		NodeList list = element.getChildNodes();
+		Node list = element.getParentNode();
 
 		fileManagerList.add(new FileManager(programName, path, programShortcut, imageLoc, programType, list));
 		return fileManagerList;
@@ -162,15 +186,12 @@ public class FileManager {
 		return file;
 	}
 
-	// TODO work on removing after adding button(s)
 	public void removeProgram() throws Exception {
 		fileManagerList.remove(this);
-		// document.getDocumentElement().removeChild(node.item(0).getParentNode());
-		document.getDocumentElement().removeChild(node.item(0).getParentNode());
+		document.getElementsByTagName("Program").item(0).getParentNode().removeChild(node);
 		updateFile();
 	}
 
-	// TODO remove extra spaces at the beginning
 	private void updateFile() throws Exception {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
@@ -183,7 +204,7 @@ public class FileManager {
 	}
 
 	public String setFileName(String name) {
-		node.item(1).setTextContent(name);
+		((Element) node).getElementsByTagName("Name").item(0).setTextContent(name);
 		try {
 			updateFile();
 		} catch (Exception e) {
@@ -193,7 +214,7 @@ public class FileManager {
 	}
 
 	public String setFilePath(String path) {
-		node.item(3).setTextContent(path);
+		((Element) node).getElementsByTagName("Location").item(0).setTextContent(path);
 		try {
 			updateFile();
 		} catch (Exception e) {
@@ -203,7 +224,7 @@ public class FileManager {
 	}
 
 	public String setShortcut(String shortcut) {
-		node.item(5).setTextContent(shortcut);
+		((Element) node).getElementsByTagName("Shortcut").item(0).setTextContent(shortcut);
 		try {
 			updateFile();
 		} catch (Exception e) {
@@ -213,7 +234,7 @@ public class FileManager {
 	}
 
 	public String setImageLoc(String imageLoc) {
-		node.item(7).setTextContent(imageLoc);
+		((Element) node).getElementsByTagName("ImageLocation").item(0).setTextContent(imageLoc);
 		try {
 			updateFile();
 		} catch (Exception e) {
@@ -223,7 +244,7 @@ public class FileManager {
 	}
 
 	public String setProgramType(String type) {
-		node.item(9).setTextContent(type);
+		((Element) node).getElementsByTagName("Type").item(0).setTextContent(type);
 		try {
 			updateFile();
 		} catch (Exception e) {
@@ -252,10 +273,11 @@ public class FileManager {
 		return programType;
 	}
 
-	public NodeList getNode() {
+	public Node getNode() {
 		return node;
 	}
 
+	@Override
 	public String toString() {
 		return "Name: " + fileName + " Path: " + filePath;
 	}
