@@ -10,9 +10,9 @@ import com.test.FileManager;
 public class Client {
 	public static void main(String[] args) {
 		// String serverName = args[0];
-		String serverName = "localhost";
+		String serverName = "192.168.2.2";
 		// int port = Integer.parseInt(args[1]);
-		int port = 1111;
+		int port = 11111;
 
 		// Try statement to catch Class not found exception from server, input
 		// (instance), also to catch input out put exceptions from server
@@ -20,6 +20,9 @@ public class Client {
 		try {
 			// Creates socket instance (also a client) to the server
 			Socket client = new Socket(serverName, port);
+			
+			
+						
 			// Prints that client successfully connected
 			System.out.println("Connected " + client.getRemoteSocketAddress());
 			// Creates instances that will allow server and client to communicate
@@ -55,7 +58,7 @@ public class Client {
 			// Closes socket (client) connection to server
 			client.close();
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 }

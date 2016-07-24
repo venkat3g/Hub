@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileSystemView;
 
+import com.test.FileManager;
+
 public class cPane extends JPanel {
 
 	/**

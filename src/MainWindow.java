@@ -1,4 +1,3 @@
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -24,8 +23,9 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import Test.Server;
+import com.test.FileManager;
 
+import Test.Server;
 /*
 	Additions:
  		-Access content/shortcuts from phone
@@ -335,7 +335,7 @@ public class MainWindow extends JFrame implements KeyListener {
 		Thread server;
 
 		try {
-			server = new Server(1111);
+			server = new Server(11111);
 			server.start();
 		} catch (IOException e) {
 			e.printStackTrace();
