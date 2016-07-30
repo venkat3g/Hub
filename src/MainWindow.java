@@ -1,4 +1,5 @@
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -240,7 +241,7 @@ public class MainWindow extends JFrame implements KeyListener {
 	private void createSystemTrayIcon() {
 		try {
 			// Creates trayicon
-			TrayIcon trayIcon = new TrayIcon(this.getIconImage());
+			TrayIcon trayIcon = new TrayIcon(this.getIconImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
 
 			// Creates popupmenu with menuitems
 			PopupMenu popupmenu = new PopupMenu();
