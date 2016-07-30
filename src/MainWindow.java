@@ -1,4 +1,8 @@
 import java.awt.GridLayout;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -26,6 +30,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.test.FileManager;
 
 import Test.Server;
+
 /*
 	Additions:
  		-Access content/shortcuts from phone
@@ -45,6 +50,8 @@ public class MainWindow extends JFrame implements KeyListener {
 	static String hubName = "";
 
 	static cPane cPane;
+
+	static int port = 11111;
 
 	public static boolean deleteButtonsOff = true;
 
@@ -159,7 +166,14 @@ public class MainWindow extends JFrame implements KeyListener {
 			this.setTitle(line.toString());
 			this.setName(line.toString());
 			line = null;
+
+			// Temporary port changer
+			if (scanName.hasNextInt()) {
+				port = scanName.nextInt();
+			}
+
 			scanName = null;
+
 			System.gc();
 		} else {
 			this.setName("");
@@ -210,12 +224,51 @@ public class MainWindow extends JFrame implements KeyListener {
 
 		add(cPane);
 
+		createSystemTrayIcon();
+
 		setJMenuBar(menubar);
 		setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
 		setFocusable(true);
 		this.requestFocus();
 		pack();
+
+	}
+
+	// Creates SystemTrayIcon for application
+	private void createSystemTrayIcon() {
+		try {
+			// Creates trayicon
+			TrayIcon trayIcon = new TrayIcon(this.getIconImage());
+
+			// Creates popupmenu with menuitems
+			PopupMenu popupmenu = new PopupMenu();
+			MenuItem exit = new MenuItem("Exit");
+			MenuItem open = new MenuItem("Open");
+
+			// ActionListener for open menuitem to display application and set
+			// focus
+			open.addActionListener(e -> {
+				MainWindow.this.setVisible(true);
+				MainWindow.this.requestFocus();
+
+			});
+
+			// ActionListener for exit menuitem to exit the application
+			exit.addActionListener(e -> System.exit(1));
+
+			// Inflating popupmenu
+			popupmenu.add(open);
+			popupmenu.add(exit);
+
+			// Sets tray popupmenu and adds the trayicon to tray
+			trayIcon.setPopupMenu(popupmenu);
+			SystemTray.getSystemTray().add(trayIcon);
+
+		} catch (Exception e) {
+			System.out.println("Could not create TrayIcon: no icon for application");
+		}
 
 	}
 
@@ -233,29 +286,10 @@ public class MainWindow extends JFrame implements KeyListener {
 		edit.addSeparator();
 		edit.add(delete);
 
-		image.addActionListener(e -> {
-			String[] types = { "png", "jpg" };
-			JFileChooser jfc = makeFileChooser("Images", types);
-			jfc.showOpenDialog(MainWindow);
-			File imageLoc = jfc.getSelectedFile();
-			ImageIcon icon = new ImageIcon(imageLoc.getAbsolutePath());
-
-			MainWindow.setIconImage(icon.getImage());
-			Path source = Paths.get(imageLoc.getAbsolutePath());
-			try {
-				int num = imageLoc.getAbsolutePath().lastIndexOf(".");
-				Files.copy(source, Paths.get("Images/imageIcon" + imageLoc.getPath().substring(num)),
-						StandardCopyOption.REPLACE_EXISTING);
-				FileWriter imgTypeWriter = new FileWriter(new File("Resources/imgType.dat"));
-				imgTypeWriter.write(imageLoc.getAbsolutePath().substring(num));
-				imgTypeWriter.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-		});
+		image.addActionListener(evt -> addIconImage(MainWindow));
 
 		name.addActionListener(evt -> {
+
 			String nameWindow = JOptionPane.showInputDialog(MainWindow, "Enter Title", null);
 			if (!name.equals("")) {
 				hubName = nameWindow;
@@ -286,6 +320,28 @@ public class MainWindow extends JFrame implements KeyListener {
 		menubar.add(edit);
 		System.gc();
 		return menubar;
+
+	}
+
+	private void addIconImage(final MainWindow MainWindow) {
+		String[] types = { "png", "jpg" };
+		JFileChooser jfc = makeFileChooser("Images", types);
+		jfc.showOpenDialog(MainWindow);
+		File imageLoc = jfc.getSelectedFile();
+		ImageIcon icon = new ImageIcon(imageLoc.getAbsolutePath());
+
+		MainWindow.setIconImage(icon.getImage());
+		Path source = Paths.get(imageLoc.getAbsolutePath());
+		try {
+			int num = imageLoc.getAbsolutePath().lastIndexOf(".");
+			Files.copy(source, Paths.get("Images/imageIcon" + imageLoc.getPath().substring(num)),
+					StandardCopyOption.REPLACE_EXISTING);
+			FileWriter imgTypeWriter = new FileWriter(new File("Resources/imgType.dat"));
+			imgTypeWriter.write(imageLoc.getAbsolutePath().substring(num));
+			imgTypeWriter.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 	}
 
@@ -335,7 +391,7 @@ public class MainWindow extends JFrame implements KeyListener {
 		Thread server;
 
 		try {
-			server = new Server(11111);
+			server = new Server(port);
 			server.start();
 		} catch (IOException e) {
 			e.printStackTrace();
