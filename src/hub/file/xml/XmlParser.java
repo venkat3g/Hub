@@ -17,6 +17,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+/**
+ * Personalized XML parser that will create/save XML files and parse through XML
+ * files.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class XmlParser {
   private static Document xmlFile;
   private static XmlNode root;
@@ -133,7 +140,6 @@ public class XmlParser {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     Transformer transformer = transformerFactory.newTransformer();
 
-    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.transform(source, streamResult);
 
   }

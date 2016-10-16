@@ -5,6 +5,12 @@ import java.io.File;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+/**
+ * A user reference to the XML node with simplified methods and uses.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class XmlNode {
 
   private Node node;
@@ -26,6 +32,7 @@ public class XmlNode {
    * 
    * @param xmlFile
    *          The file that will be parsed for a XmlNode.
+   * @return returns the XmlNode
    */
   public static XmlNode getXmlRootNode(File xmlFile) {
 
@@ -40,6 +47,8 @@ public class XmlNode {
 
   /**
    * Returns the number of children nodes including whitespaces.
+   * 
+   * @return returns the number of children.
    */
   public int getNumberChildren() {
     return getNode().getChildNodes().getLength();

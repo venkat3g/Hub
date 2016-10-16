@@ -7,6 +7,12 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Prototype of Client access to server.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class Client {
 
   /**
@@ -16,9 +22,9 @@ public class Client {
    *          commandline args.
    */
   public static void main(String[] args) {
-    //String serverName = "ec2-54-174-234-55.compute-1.amazonaws.com";
+    String serverName = "ec2-54-174-234-55.compute-1.amazonaws.com";
     int port = 1024;
-    String serverName = "localhost";
+    //String serverName = "localhost";
     // Try statement to catch Class not found exception from server, input
     // (instance), also to catch input out put exceptions from server
     // connection
@@ -30,7 +36,7 @@ public class Client {
 
       // Prints that client successfully connected
       System.out.println("Connected " + client.getRemoteSocketAddress());
-      
+
       // Lets Server know that device connecting is a Client.
       ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
       out.writeObject("Client Connected");
@@ -45,12 +51,10 @@ public class Client {
         ex.printStackTrace();
       }
 
-      
       Scanner keyboard = new Scanner(System.in);
       String output = keyboard.next();
       System.out.println(output);
       out.writeObject(output);
-      
 
       keyboard.close();
 

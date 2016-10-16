@@ -12,11 +12,18 @@ import java.util.ArrayList;
 import hub.runnable.IRunnableButton;
 import hub.window.VisualPane;
 
+/**
+ * Server used for local clients using the same subnet.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class ServerLocal extends Thread {
 
   private static ServerSocket serverSocket;
   private static ServerLocal server;
   private boolean keepAlive = true;
+  @SuppressWarnings("unused")
   private static int port;
 
   /**

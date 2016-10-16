@@ -5,6 +5,13 @@ import java.io.IOException;
 import hub.file.manager.HubManager;
 import hub.file.xml.XmlNode;
 
+/**
+ * Program implementation of IRunnableButton which will implement a program
+ * 'Button's' information.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class Program implements IRunnableButton {
 
   private String name;

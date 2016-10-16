@@ -1,6 +1,5 @@
 package hub.window;
 
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -32,37 +31,34 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import hub.file.FileManager;
 import hub.net.ServerConnect;
 import hub.net.ServerLocal;
 import hub.runnable.IRunnableButton;
 import hub.window.asset.DockFileChooser;
 
+/**
+ * Window which will manage Window operations and instantiate JFrame.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class MainWindow extends JFrame implements KeyListener {
 
   private static final long serialVersionUID = 1L;
-
-  private static File xmlFile;
 
   private static boolean localServerEnabled = false;
   private static boolean connectOnlineEnabled = false;
 
   // static File sourceFile;
-  static File imageFile;
-  static File shortcutFile;
-  static File nameFile;
+  private static File nameFile;
 
-  static File imageFileType = new File("Resources/imgType.dat");
-  static File resourceFolder = new File("Resources");
-  static File imageFolder = new File("Images");
+  private static File imageFileType = new File("Resources/imgType.dat");
+  private static File resourceFolder = new File("Resources");
+  private static File imageFolder = new File("Images");
 
-  static String hubName = "";
+  private static String hubName = "";
 
-  static int port = 1024;
-
-  static MainWindow pInstance;
-
-  private static GridLayout layout;
+  private static int port = 1024;
 
   /**
    * Public constructor of the MainWindow for the Hub.
@@ -117,30 +113,7 @@ public class MainWindow extends JFrame implements KeyListener {
    */
   private void instantiateFiles() throws IOException {
 
-    xmlFile = FileManager.getFile();
-
     nameFile = new File(resourceFolder.getPath() + "/Hub_Name.txt");
-
-    /*
-     * Checks if the xmlFile does not exist, creates if necessary.
-     */
-    if (!xmlFile.exists()) {
-      try {
-        FileManager.createProgramFile();
-      } catch (Exception ex) {
-        System.out.println("Error in Instantiating XML File");
-      }
-    }
-    /*
-     * Checks if the xmlFile has content, otherwise creates a new xmlFile.
-     */
-    if (xmlFile.length() == 0) {
-      try {
-        FileManager.createProgramFile();
-      } catch (Exception ex) {
-        System.out.println("Error in Instantiating XML File");
-      }
-    }
 
     makeDirs();
 
@@ -235,12 +208,6 @@ public class MainWindow extends JFrame implements KeyListener {
     uiLookFeel();
 
     /*
-     * Sets the initial layout of the Hub. TODO: Create a layout manager class
-     * or something.
-     */
-    layout = new GridLayout(2, 1);
-
-    /*
      * Adds a key listener to the window.
      */
     addKeyListener(this);
@@ -253,7 +220,8 @@ public class MainWindow extends JFrame implements KeyListener {
     /*
      * Creates a new VisualPane and adds the pane to the window.
      */
-    getContentPane().add(new VisualPane(this, layout));
+    VisualPane pane = new VisualPane(this);
+    getContentPane().add(pane);
 
     JMenuBar menubar = instantiateMenuBar(this);
 
@@ -414,10 +382,10 @@ public class MainWindow extends JFrame implements KeyListener {
       connectOnline.addActionListener(new ActionListener() {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-          if (!connectOnlineEnabled) {
+        public void actionPerformed(ActionEvent ex) {
+          if (connectOnline.getLabel().equals("Connect Online")) {
             ServerConnect
-                .connect(VisualPane.visualPane.getManager().getStringButtonList());
+                .connect(VisualPane.visualPane.getManager().getStringButtonList(),connectOnline);
             connectOnlineEnabled = true;
             connectOnline.setLabel("Disconnect Online");
           } else {
@@ -436,7 +404,7 @@ public class MainWindow extends JFrame implements KeyListener {
       popupmenu.add(open);
       popupmenu.addSeparator();
       popupmenu.add(localServer);
-      //popupmenu.add(connectOnline);//TODO: for later implementation
+      popupmenu.add(connectOnline);// TODO: for later implementation
       popupmenu.addSeparator();
       popupmenu.add(exit);
 
@@ -451,7 +419,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
   }
 
-  private JMenuBar instantiateMenuBar(final MainWindow MainWindow) {
+  private JMenuBar instantiateMenuBar(final MainWindow mainWindow) {
 
     JMenu file = new JMenu("File");
     JMenu edit = new JMenu("Edit");
@@ -462,11 +430,11 @@ public class MainWindow extends JFrame implements KeyListener {
     file.add(name);
     edit.add(image);
 
-    image.addActionListener(evt -> addIconImage(MainWindow));
+    image.addActionListener(evt -> addIconImage(mainWindow));
 
     name.addActionListener(evt -> {
 
-      String nameWindow = JOptionPane.showInputDialog(MainWindow, "Enter Title", null);
+      String nameWindow = JOptionPane.showInputDialog(mainWindow, "Enter Title", null);
       if (!name.equals("")) {
         hubName = nameWindow;
         setTitle(nameWindow);
@@ -493,23 +461,23 @@ public class MainWindow extends JFrame implements KeyListener {
   /**
    * Adds Icon image to the window. TODO: comment
    * 
-   * @param MainWindow
+   * @param mainWindow
    *          Reference to the window.
    */
-  private void addIconImage(final MainWindow MainWindow) {
+  private void addIconImage(final MainWindow mainWindow) {
     /*
      * Creates a File Chooser for choosing the icon.
      */
     String[] types = { "png", "jpg" };
     JFileChooser jfc = DockFileChooser.makeFileChooser("Images", types);
-    jfc.showOpenDialog(MainWindow);
+    jfc.showOpenDialog(mainWindow);
     File imageLoc = jfc.getSelectedFile();
     ImageIcon icon = new ImageIcon(imageLoc.getAbsolutePath());
 
     /*
      * Sets the icon image.
      */
-    MainWindow.setIconImage(icon.getImage());
+    mainWindow.setIconImage(icon.getImage());
     Path source = Paths.get(imageLoc.getAbsolutePath());
     try {
       int num = imageLoc.getAbsolutePath().lastIndexOf(".");
@@ -534,9 +502,9 @@ public class MainWindow extends JFrame implements KeyListener {
   public static void main(String[] args) {
 
     if (args.length == 1) {
-      pInstance = new MainWindow(args[0]);
+      new MainWindow(args[0]);
     } else {
-      pInstance = new MainWindow();
+      new MainWindow();
     }
 
   }

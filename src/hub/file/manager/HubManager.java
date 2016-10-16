@@ -13,6 +13,12 @@ import hub.runnable.IRunnableButton;
 import hub.runnable.Program;
 import hub.runnable.Website;
 
+/**
+ * The main controller for the hub which give information to the user interface.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class HubManager {
 
   private ArrayList<IRunnableButton> buttonList = new ArrayList<>();
@@ -122,8 +128,7 @@ public class HubManager {
   }
 
   /**
-   * Removes the button from the xml file. TODO: force HubButton to be only way
-   * to removeButton.
+   * Removes the button from the xml file.
    * 
    * @param button
    *          Reference to button that will be removed.

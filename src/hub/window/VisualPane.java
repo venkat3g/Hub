@@ -1,6 +1,5 @@
 package hub.window;
 
-import java.awt.GridLayout;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -10,8 +9,15 @@ import javax.swing.JPanel;
 import hub.file.manager.HubManager;
 import hub.runnable.IRunnableButton;
 import hub.window.asset.DefaultButtons;
+import hub.window.asset.GridManager;
 import hub.window.asset.HubButton;
 
+/**
+ * Visual Panel which will contain the buttons that the user will interact with.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class VisualPane extends JPanel {
 
   private static final long serialVersionUID = 1L;
@@ -24,26 +30,24 @@ public class VisualPane extends JPanel {
   /*
    * Current workaround for removing buttons.
    */
+  private static MainWindow pInstance;
   public static VisualPane visualPane;
-  static MainWindow pInstance;
 
   /**
    * Creates a Pane to display Hub to user.
    * 
    * @param frame
    *          A reference to the Window (JFrame)
-   * @param layout
-   *          A reference to the GridLayout of the window.
    */
   @SuppressWarnings("static-access")
-  public VisualPane(MainWindow frame, GridLayout layout) {
+  public VisualPane(MainWindow frame) {
     pInstance = frame;
     visualPane.visualPane = this;
-
-    setLayout(layout);
     try {
 
       getIRunnables();
+
+      setLayout(GridManager.startGridManager(buttonList));
 
       addButtons(this);
 
@@ -102,13 +106,21 @@ public class VisualPane extends JPanel {
    *          button to be removed.
    */
   public static void removeButton(HubButton hubButton) {
+
     try {
+      visualPane.manager.removeButtonFromList(hubButton.getProfile());
       hubButton.getProfile().remove();
     } catch (Exception ex) {
       ex.printStackTrace();
     }
 
     visualPane.remove(hubButton);
+    visualPane.revalidate();
+    pInstance.pack();
+
+  }
+
+  public static void update() {
     visualPane.revalidate();
     pInstance.pack();
   }

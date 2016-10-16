@@ -27,6 +27,12 @@ import hub.runnable.IRunnableButton;
 import hub.runnable.Program;
 import hub.window.VisualPane;
 
+/**
+ * JButton tailored to Hub application with a 'profile' (IRunnableButton).
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class HubButton extends JButton implements ActionListener, MouseListener {
 
   private final byte scaledValue = 35;

@@ -11,6 +11,13 @@ import hub.file.manager.HubManager;
 import hub.file.xml.XmlNode;
 import hub.file.xml.XmlParser;
 
+/**
+ * Website implementation of IRunnableButton which will implement a website
+ * 'Button's' information.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class Website implements IRunnableButton {
 
   private String name;

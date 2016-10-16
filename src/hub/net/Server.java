@@ -10,6 +10,12 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
+/**
+ * Temporary file which will be implemented in proxy server.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class Server extends Thread {
 
   private int connectionPort;
@@ -56,12 +62,10 @@ public class Server extends Thread {
         System.out.println("" + "");
         // Waiting for connection from client
         System.out.println("Waiting for client on port " + serverSocket.getLocalPort());
-        Socket socket = serverSocket.accept();
 
-        System.out.println(socket.getRemoteSocketAddress());
 
-        checkIfServerOrClient(socket);
-
+        checkIfServerOrClient(serverSocket.accept());
+        
       } catch (SocketTimeoutException se) {
         System.out.println("Socket timed out!");
 
@@ -78,7 +82,10 @@ public class Server extends Thread {
     }
   }
 
-  private void checkIfServerOrClient(Socket socket) throws Exception {
+  private void checkIfServerOrClient(final Socket socket) throws Exception {
+    
+    System.out.println(socket.getRemoteSocketAddress());
+    
     ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
     ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
@@ -88,6 +95,8 @@ public class Server extends Thread {
       serverOutput = out;
     } else if (input.equals("Client Connected")) {
       startClientThread(socket, out, in);
+    } else {
+      System.err.println("Warning unidentified client attempting to connect.");
     }
     /*
      * Ignores Clients that do not tell server 'who' they are.
@@ -95,7 +104,7 @@ public class Server extends Thread {
 
   }
 
-  private void startClientThread(Socket socket, final ObjectOutputStream out,
+  private void startClientThread(final Socket socket, final ObjectOutputStream out,
       final ObjectInputStream in) {
     new Thread(new Runnable() {
 
@@ -104,9 +113,9 @@ public class Server extends Thread {
         try {
           out.writeObject(list);
           while (true) {
-            String l = (String) in.readObject();
-            System.out.println(l.toString());
-            writeToServer(l);
+            Object strOb = in.readObject();
+            System.out.println(strOb);
+            writeToServer(strOb);
           }
 
         } catch (IOException ex) {
@@ -122,7 +131,7 @@ public class Server extends Thread {
     }, "Client Thread").start();
   }
 
-  private void writeToServer(String output) {
+  private void writeToServer(Object output) {
     try {
       serverOutput.writeObject(output);
     } catch (IOException ex) {
@@ -161,8 +170,8 @@ public class Server extends Thread {
   }
 
   public static void main(String... args) {
-    Server s = new Server(1024);
-    s.start();
+    Server ser = new Server(1024);
+    ser.start();
   }
 
 }

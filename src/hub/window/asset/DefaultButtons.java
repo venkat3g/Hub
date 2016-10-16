@@ -19,6 +19,13 @@ import hub.runnable.Website;
 import hub.window.MainWindow;
 import hub.window.VisualPane;
 
+/**
+ * Class which contains default buttons that will allow user to add more
+ * interactive buttons to hub.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public class DefaultButtons {
 
   /**
@@ -26,8 +33,11 @@ public class DefaultButtons {
    * 
    * @param window
    *          reference to the JFrame that will have the Add Button.
+   * @param visualPane
+   *          reference to the visual panel.
    * @param addButton
    *          reference to the JButton addButton.
+   * 
    */
   public static void initializeDefaultButtonAddProgram(MainWindow window,
       VisualPane visualPane, JButton addButton) {
@@ -39,7 +49,8 @@ public class DefaultButtons {
          * Makes a JFileChooser
          */
         String[] types = { "exe", "lnk" };
-        JFileChooser jfc = DockFileChooser.makeFileChooser("Executables & Shorcuts", types);
+        JFileChooser jfc = DockFileChooser.makeFileChooser("Executables & Shorcuts",
+            types);
 
         int returnValue = jfc.showOpenDialog(window);
         /*
@@ -51,13 +62,13 @@ public class DefaultButtons {
           /*
            * Gets File name
            */
-          int i = 0;
-          while (programPath.indexOf("\\", i) != -1) {
-            i++;
-            programPath.indexOf("\\", i);
+          int index = 0;
+          while (programPath.indexOf("\\", index) != -1) {
+            index++;
+            programPath.indexOf("\\", index);
 
           }
-          String fileName = programPath.substring(i);
+          String fileName = programPath.substring(index);
 
           String imageLoc = "";
           /*
@@ -151,14 +162,6 @@ public class DefaultButtons {
           IRunnableButton buttonProfile = new Website(name, url, "", "");
           manager.addButtonToXml(buttonProfile);
           HubButton tempHubButton = new HubButton(buttonProfile);
-
-          /*
-           * Loads buttons w/ new button
-           */
-          /*
-           * MainWindow.loadFilesFromManager(); HubButton tempHubButton =
-           * MainWindow.getButtonList() .get(MainWindow.getList().size() - 1);
-           */
 
           visualPane.add(tempHubButton, manager.getButtonList().size() - 1);
           window.revalidate();

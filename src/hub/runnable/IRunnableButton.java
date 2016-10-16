@@ -2,6 +2,12 @@ package hub.runnable;
 
 import hub.file.xml.XmlNode;
 
+/**
+ * Interface that will serve as the information of the 'Button'.
+ * 
+ * @author Venkat Garapati
+ *
+ */
 public interface IRunnableButton {
 
   /**
