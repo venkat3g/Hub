@@ -1,4 +1,3 @@
-package hub.net;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

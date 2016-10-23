@@ -27,9 +27,9 @@ public class GridManager extends Thread {
   @Override
   public void run() {
     while (keepAlive) {
-      if (list.size() + 2 <= 4) {
+      if (list.size() + 2 <= 6) {
         layout.setRows(2);
-      } else if (list.size() + 2 <= 9) {
+      } else if (list.size() + 2 <= 10) {
         layout.setRows(3);
       } else {
         layout.setRows(4);

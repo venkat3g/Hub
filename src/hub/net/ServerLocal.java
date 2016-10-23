@@ -57,7 +57,7 @@ public class ServerLocal extends Thread {
         // Creates an object output stream
         ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
 
-        // Gets current Program List from FileManager
+        // Gets current Program List
         ArrayList<String> output = getFileList();
 
         // Sends ArrayList of programs to client

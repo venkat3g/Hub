@@ -47,9 +47,7 @@ public class MainWindow extends JFrame implements KeyListener {
   private static final long serialVersionUID = 1L;
 
   private static boolean localServerEnabled = false;
-  private static boolean connectOnlineEnabled = false;
 
-  // static File sourceFile;
   private static File nameFile;
 
   private static File imageFileType = new File("Resources/imgType.dat");
@@ -384,14 +382,12 @@ public class MainWindow extends JFrame implements KeyListener {
         @Override
         public void actionPerformed(ActionEvent ex) {
           if (connectOnline.getLabel().equals("Connect Online")) {
-            ServerConnect
-                .connect(VisualPane.visualPane.getManager().getStringButtonList(),connectOnline);
-            connectOnlineEnabled = true;
+            ServerConnect.connect(
+                VisualPane.visualPane.getManager(), connectOnline);
             connectOnline.setLabel("Disconnect Online");
           } else {
             ServerConnect.stopServer();
             connectOnline.setLabel("Connect Online");
-            connectOnlineEnabled = false;
           }
 
         }
