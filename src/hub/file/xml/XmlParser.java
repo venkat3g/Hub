@@ -43,35 +43,40 @@ public class XmlParser {
 
         createProgramFile(file, "ButtonList");
         saveFile(file);
+        parserFile(file);
       } catch (TransformerException ex) {
-        // TODO Auto-generated catch block
+        // Attempting to create buttonList xml file.
         ex.printStackTrace();
       }
     } else {
-      try {
-        /*
-         * Creates a document builder that will parse the xml file.
-         */
-        DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance()
-            .newDocumentBuilder();
-        /*
-         * Parse the file to hte xmlFile document.
-         */
-        xmlFile = docBuilder.parse(file);
-        /*
-         * Creates the root XmlNode.
-         */
-        root = new XmlNode(xmlFile.getFirstChild());
+      parserFile(file);
+    }
+  }
 
-      } catch (ParserConfigurationException ex) {
-        ex.printStackTrace();
-      } catch (SAXException ex) {
-        // TODO Auto-generated catch block
-        ex.printStackTrace();
-      } catch (IOException ex) {
-        // TODO Auto-generated catch block
-        ex.printStackTrace();
-      }
+  private static void parserFile(File file) {
+    try {
+      /*
+       * Creates a document builder that will parse the xml file.
+       */
+      DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance()
+          .newDocumentBuilder();
+      /*
+       * Parse the file to hte xmlFile document.
+       */
+      xmlFile = docBuilder.parse(file);
+      /*
+       * Creates the root XmlNode.
+       */
+      root = new XmlNode(xmlFile.getFirstChild());
+
+    } catch (ParserConfigurationException ex) {
+      ex.printStackTrace();
+    } catch (SAXException ex) {
+      // TODO Auto-generated catch block
+      ex.printStackTrace();
+    } catch (IOException ex) {
+      // TODO Auto-generated catch block
+      ex.printStackTrace();
     }
   }
 

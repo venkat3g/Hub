@@ -26,7 +26,7 @@ public class VisualPane extends JPanel {
 
   private ArrayList<IRunnableButton> buttonList;
 
-  private File hubButtonFile = new File("Resources/hub_info.xml");
+  private File hubButtonFile = new File("Resources/buttonList.xml");
   /*
    * Current workaround for removing buttons.
    */
