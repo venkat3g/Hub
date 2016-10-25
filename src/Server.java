@@ -20,6 +20,7 @@ public class Server extends Thread {
   private boolean keepAlive = false;
   private ArrayList<String> list;
   private ObjectOutputStream serverOutput;
+  @SuppressWarnings("unused")
   private ObjectInputStream serverInput;
 
   /**

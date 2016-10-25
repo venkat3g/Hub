@@ -1,6 +1,6 @@
 package hub.runnable;
 
-import hub.file.xml.XmlNode;
+import hub.file.xml.XmlNode1;
 
 /**
  * Interface that will serve as the information of the 'Button'.
@@ -32,7 +32,7 @@ public interface IRunnableButton {
    * @param node
    *          XmlNode that represents this node.
    */
-  void setNode(XmlNode node);
+  void setNode(XmlNode1 node);
 
   /**
    * Sets the path of the this button.
@@ -84,7 +84,7 @@ public interface IRunnableButton {
    * 
    * @return returns the node of the document.
    */
-  XmlNode getNode();
+  XmlNode1 getNode();
 
   /**
    * Removes the button.

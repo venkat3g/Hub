@@ -8,8 +8,8 @@ import java.net.URISyntaxException;
 import javax.xml.transform.TransformerException;
 
 import hub.file.manager.HubManager;
-import hub.file.xml.XmlNode;
-import hub.file.xml.XmlParser;
+import hub.file.xml.XmlNode1;
+import hub.file.xml.XmlParser1;
 
 /**
  * Website implementation of IRunnableButton which will implement a website
@@ -24,7 +24,7 @@ public class Website implements IRunnableButton {
   private String website;
   private String shortcut;
   private String imageLocation;
-  private XmlNode node;
+  private XmlNode1 node;
 
   /**
    * Instantiates a new Website with the information of the button.
@@ -41,7 +41,7 @@ public class Website implements IRunnableButton {
    *          the node that the button is in the XML doc.
    */
   public Website(String name, String website, String shortcut, String imageLocation,
-      XmlNode node) {
+      XmlNode1 node) {
     setName(name);
     setPath(website);
     setShortcut(shortcut);
@@ -87,7 +87,7 @@ public class Website implements IRunnableButton {
   }
 
   @Override
-  public void setNode(XmlNode node) {
+  public void setNode(XmlNode1 node) {
     this.node = node;
   }
 
@@ -122,7 +122,7 @@ public class Website implements IRunnableButton {
   }
 
   @Override
-  public XmlNode getNode() {
+  public XmlNode1 getNode() {
     return node;
   }
 
@@ -151,7 +151,7 @@ public class Website implements IRunnableButton {
   public void remove() {
     getNode().removeNode();
     try {
-      XmlParser.saveFile(XmlParser.getCurrentFile());
+      XmlParser1.saveFile(XmlParser1.getCurrentFile());
     } catch (TransformerException ex) {
       // TODO Auto-generated catch block
       ex.printStackTrace();

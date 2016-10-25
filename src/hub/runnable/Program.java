@@ -3,7 +3,7 @@ package hub.runnable;
 import java.io.IOException;
 
 import hub.file.manager.HubManager;
-import hub.file.xml.XmlNode;
+import hub.file.xml.XmlNode1;
 
 /**
  * Program implementation of IRunnableButton which will implement a program
@@ -18,7 +18,7 @@ public class Program implements IRunnableButton {
   private String filepath;
   private String shortcut;
   private String imageLocation;
-  private XmlNode node;
+  private XmlNode1 node;
 
   /**
    * Instantiates a new Program with the information of the button.
@@ -35,7 +35,7 @@ public class Program implements IRunnableButton {
    *          the node that the button is in the XML doc.
    */
   public Program(String name, String filepath, String shortcut, String imageLocation,
-      XmlNode node) {
+      XmlNode1 node) {
     setName(name);
     setPath(filepath);
     setShortcut(shortcut);
@@ -82,7 +82,7 @@ public class Program implements IRunnableButton {
   }
 
   @Override
-  public void setNode(XmlNode node) {
+  public void setNode(XmlNode1 node) {
     this.node = node;
   }
 
@@ -117,7 +117,7 @@ public class Program implements IRunnableButton {
   }
 
   @Override
-  public XmlNode getNode() {
+  public XmlNode1 getNode() {
     return node;
   }
 
