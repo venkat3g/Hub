@@ -7,8 +7,8 @@ import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Element;
 
-import hub.file.xml.XmlNode1;
-import hub.file.xml.XmlParser1;
+import hub.file.xml.XmlNode;
+import hub.file.xml.XmlParser;
 import hub.runnable.IRunnableButton;
 import hub.runnable.Program;
 import hub.runnable.Website;
@@ -23,10 +23,10 @@ public class HubManager {
 
   private ArrayList<IRunnableButton> buttonList = new ArrayList<>();
 
-  private XmlNode1 rootNode;
+  private XmlNode rootNode;
 
   public HubManager(File hubButtonFile) {
-    rootNode = XmlNode1.getXmlRootNode(hubButtonFile);
+    rootNode = XmlNode.getXmlRootNode(hubButtonFile);
     generateButtonList();
   }
 
@@ -34,7 +34,7 @@ public class HubManager {
     for (int i = 0; i < rootNode.getNumberChildren(); i++) {
 
       // Skips the closing tags.
-      XmlNode1 child = rootNode.getChildByName("Button", ++i);
+      XmlNode child = rootNode.getChildByName("Button", ++i);
       if (child != null) {
         /*
          * Gets information from the node to pass into the IRunnableButton.
@@ -81,7 +81,7 @@ public class HubManager {
     createXmlNode(button);
     getButtonList().add(button);
     try {
-      XmlParser1.saveFile(XmlParser1.getCurrentFile());
+      XmlParser.saveFile(XmlParser.getCurrentFile());
     } catch (TransformerException ex) {
       // TODO Auto-generated catch block
       ex.printStackTrace();
@@ -120,7 +120,7 @@ public class HubManager {
     node.appendChild(imageLocation);
     node.appendChild(type);
 
-    XmlNode1 xmlnode = new XmlNode1(node);
+    XmlNode xmlnode = new XmlNode(node);
     button.setNode(xmlnode);
 
     rootNode.appendChild(xmlnode);
@@ -153,7 +153,7 @@ public class HubManager {
    */
   public static void saveXml() {
     try {
-      XmlParser1.saveFile(XmlParser1.getCurrentFile());
+      XmlParser.saveFile(XmlParser.getCurrentFile());
     } catch (TransformerException ex) {
       // TODO Auto-generated catch block
       ex.printStackTrace();

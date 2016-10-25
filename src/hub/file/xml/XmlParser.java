@@ -24,9 +24,9 @@ import org.xml.sax.SAXException;
  * @author Venkat Garapati
  *
  */
-public class XmlParser1 {
+public class XmlParser {
   private static Document xmlFile;
-  private static XmlNode1 root;
+  private static XmlNode root;
   private static File xfile;
 
   /**
@@ -67,7 +67,7 @@ public class XmlParser1 {
       /*
        * Creates the root XmlNode.
        */
-      root = new XmlNode1(xmlFile.getFirstChild());
+      root = new XmlNode(xmlFile.getFirstChild());
 
     } catch (ParserConfigurationException ex) {
       ex.printStackTrace();
@@ -104,7 +104,7 @@ public class XmlParser1 {
     transformer.transform(source, streamResult);
   }
 
-  static void changeContent(String content, XmlNode1 programNode, String tag) {
+  static void changeContent(String content, XmlNode programNode, String tag) {
 
   }
 
@@ -165,7 +165,7 @@ public class XmlParser1 {
    * @param node
    *          node to be removed.
    */
-  static void removeNode(XmlNode1 node) {
+  static void removeNode(XmlNode node) {
 
     root.getNode().removeChild(node.getNode());
   }
@@ -173,7 +173,7 @@ public class XmlParser1 {
   /**
    * Finds the root node of the xmlFile stored.
    */
-  static XmlNode1 getRootNode() {
+  static XmlNode getRootNode() {
     assert xmlFile == null : "xmlFile not initialized";
 
     return root;
