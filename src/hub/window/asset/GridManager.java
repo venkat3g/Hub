@@ -27,6 +27,11 @@ public class GridManager extends Thread {
   @Override
   public void run() {
     while (keepAlive) {
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException ex) {
+        ex.printStackTrace();
+      }
       if (list.size() + 2 <= 6) {
         layout.setRows(2);
       } else if (list.size() + 2 <= 10) {
