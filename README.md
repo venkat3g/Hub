@@ -8,10 +8,7 @@ Have java-jdk installed in order to compile the files yourself. Compile hub/wind
 ## Already Compiled / Downloaded jar
 Create a new folder for the 'Hub' as having multiple 'Hubs' in the same folder will not work. 
 ##### If you have compiled the java files yourself, type java hub.window.MainWindow from the directory of the folder containing the Hub.
-Launch the Hub. Create a shortcut (applies to jar) to your desktop if you would like.
-
-## Using 'Hub'
-Go ahead and add websites and programs to your Hub. 
+Launch the Hub. Create a shortcut (applies to jar) to your desktop if you would like. Go ahead and add websites and programs to your Hub. 
 
 # Adding Images to each button
 By default each program you add will take a copy of the image and save it into the (Hub folder)/Images folder.
