@@ -66,31 +66,32 @@ public class ServerLocal extends Thread {
 
         // Sends ArrayList of programs to client
         out.writeObject(output);
-
-        while (keepAlive && server.isConnected()) {
-          try {
-
-            if (input instanceof String) {
-              if (input.equals("Client Connected")) {
+        if (input instanceof String) {
+          if (input.equals("Client Connected")) {
+            while (keepAlive && server.isConnected()) {
+              try {
                 input = in.readObject();
                 if (input.equals("reload")) {
                   output = getFileList();
                   out.writeObject(output);
                 } else {
-                  for (IRunnableButton b : VisualPane.visualPane.getManager()
-                      .getButtonList()) {
-                    if (input.equals(b.getName())) {
-                      b.open();
+                  System.out.println(input);
+                  ArrayList<IRunnableButton> buttonList = VisualPane.visualPane
+                      .getButtonList();
+                  for (int i = 0; i < buttonList.size(); i++) {
+                    if (buttonList.get(i).getName().equals(input)) {
+                      buttonList.get(i).open();
                     }
                   }
                 }
+
+              } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
               }
             }
-          } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+
           }
         }
-
       } catch (SocketTimeoutException so) {
         System.out.println("Socket timed out!");
 
