@@ -57,32 +57,37 @@ public class ServerLocal extends Thread {
         // Creates an object output stream
         ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
 
+        // Creates an object input stream
+        ObjectInputStream in = new ObjectInputStream(server.getInputStream());
+        Object input = in.readObject();
+
         // Gets current Program List
         ArrayList<String> output = getFileList();
 
         // Sends ArrayList of programs to client
         out.writeObject(output);
 
-        while (keepAlive && server.getRemoteSocketAddress() != null) {
-          // Creates an object input stream
-          ObjectInputStream in = new ObjectInputStream(server.getInputStream());
-          Object input = in.readObject();
+        while (keepAlive && server.isConnected()) {
+          try {
 
-          if (input instanceof String) {
-            if (input.equals("Client Connected")) {
-              input = in.readObject();
-              if (input.equals("reload")) {
-                output = getFileList();
-                out.writeObject(output);
-              } else {
-                for (IRunnableButton b : VisualPane.visualPane.getManager()
-                    .getButtonList()) {
-                  if (input.equals(b.getName())) {
-                    b.open();
+            if (input instanceof String) {
+              if (input.equals("Client Connected")) {
+                input = in.readObject();
+                if (input.equals("reload")) {
+                  output = getFileList();
+                  out.writeObject(output);
+                } else {
+                  for (IRunnableButton b : VisualPane.visualPane.getManager()
+                      .getButtonList()) {
+                    if (input.equals(b.getName())) {
+                      b.open();
+                    }
                   }
                 }
               }
             }
+          } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
           }
         }
 
