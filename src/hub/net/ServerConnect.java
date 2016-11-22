@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -61,10 +62,10 @@ public class ServerConnect extends Thread {
               if (input.equals("reload")) {
                 out.writeObject(manager.getStringButtonList());
               } else {
-                for (IRunnableButton b : VisualPane.visualPane.getManager()
-                    .getButtonList()) {
-                  if (b.getName().equals(input)) {
-                    b.open();
+                ArrayList<IRunnableButton> buttonList = manager.getButtonList();
+                for (int i = 0; i < buttonList.size(); i++) {
+                  if (buttonList.get(i).getName().equals(input)) {
+                    buttonList.get(i).open();
                   }
                 }
               }
