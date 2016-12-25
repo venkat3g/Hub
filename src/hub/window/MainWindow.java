@@ -11,16 +11,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -35,6 +33,7 @@ import hub.net.ServerConnect;
 import hub.net.ServerLocal;
 import hub.runnable.IRunnableButton;
 import hub.window.asset.DockFileChooser;
+import hub.window.manager.PropertyManager;
 
 /**
  * Window which will manage Window operations and instantiate JFrame.
@@ -48,9 +47,6 @@ public class MainWindow extends JFrame implements KeyListener {
 
   private static boolean localServerEnabled = false;
 
-  private static File nameFile;
-
-  private static File imageFileType = new File("Resources/imgType.dat");
   private static File resourceFolder = new File("Resources");
   private static File imageFolder = new File("Images");
 
@@ -64,20 +60,19 @@ public class MainWindow extends JFrame implements KeyListener {
   public MainWindow() {
 
     try {
-      instantiateFiles();
+      makeDirs();
       useFileName();
-      System.gc();
     } catch (Exception ex) {
       ex.printStackTrace();
     }
 
     try {
       instantiateFrame();
-      System.gc();
+
     } catch (FileNotFoundException ex) {
       ex.printStackTrace();
     }
-
+    System.gc();
   }
 
   /**
@@ -90,7 +85,7 @@ public class MainWindow extends JFrame implements KeyListener {
     super(name);
 
     try {
-      instantiateFiles();
+      makeDirs();
       changeName(name);
       useFileName();
     } catch (IOException ex) {
@@ -103,25 +98,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
       ex.printStackTrace();
     }
-
-  }
-
-  /**
-   * Instantiates the files needed for Hub.
-   */
-  private void instantiateFiles() throws IOException {
-
-    nameFile = new File(resourceFolder.getPath() + "/Hub_Name.txt");
-
-    makeDirs();
-
-    /*
-     * Checks if the nameFile exists otherwise makes one.
-     */
-    if (!nameFile.exists()) {
-      nameFile.createNewFile();
-    }
-
+    System.gc();
   }
 
   /**
@@ -151,9 +128,7 @@ public class MainWindow extends JFrame implements KeyListener {
   private void changeName(String name) throws IOException {
     hubName = name;
 
-    FileWriter nameWriter = new FileWriter(nameFile);
-    nameWriter.write(hubName);
-    nameWriter.close();
+    PropertyManager.setName(hubName);
 
   }
 
@@ -165,32 +140,14 @@ public class MainWindow extends JFrame implements KeyListener {
    *           throws error if file is not found.
    */
   private void useFileName() throws FileNotFoundException {
-    @SuppressWarnings("resource")
-    Scanner scanName = new Scanner(nameFile);
-    String line = "";
-    if (scanName.hasNextLine()) {
-      line = scanName.nextLine();
-      this.setTitle(line.toString());
-      this.setName(line.toString());
-      line = null;
 
-      /*
-       * Temporary port changer
-       */
-      if (scanName.hasNextInt()) {
-        port = scanName.nextInt();
-      }
+    PropertyManager.load();
 
-      scanName = null;
+    hubName = PropertyManager.getName();
 
-      System.gc();
-    } else {
-      this.setName("");
-      this.setTitle("");
-      scanName = null;
-      line = null;
-      System.gc();
-    }
+    this.setTitle(hubName);
+    this.setName(hubName);
+
   }
 
   /**
@@ -225,7 +182,13 @@ public class MainWindow extends JFrame implements KeyListener {
 
     setJMenuBar(menubar);
     setVisible(true);
-    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+    if ("True".equals(PropertyManager.getCloseOp())) {
+      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    } else {
+      setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    }
+
     createSystemTrayIcon();
 
     setFocusable(true);
@@ -239,61 +202,46 @@ public class MainWindow extends JFrame implements KeyListener {
     /*
      * Checks if the image file exists w/ which extension.
      */
-    if (MainWindow.imageFileType.exists()) {
-      Scanner read;
-      try {
-        /*
-         * Reads from the file that specifies the imageIcon extension.
-         */
-        read = new Scanner(MainWindow.imageFileType);
-        /*
-         * If the reader finds content in the file it appendes it to the
-         * imageIcon
-         */
-        if (read.hasNextLine()) {
-          String type = read.nextLine();
-          ImageIcon icon1 = new ImageIcon("Images/imageIcon" + type);
-          this.setIconImage(icon1.getImage());
-        }
 
-      } catch (FileNotFoundException ex) {
-        System.out.println("Could not find files needed for Hub Icon.");
-      }
+    if (!PropertyManager.getIconImage().equals("")) {
+      ImageIcon icon1 = new ImageIcon(PropertyManager.getIconImage());
+      this.setIconImage(icon1.getImage());
     }
+
+    //
+    //
+    // if (MainWindow.imageFileType.exists()) {
+    // Scanner read;
+    // try {
+    // /*
+    // * Reads from the file that specifies the imageIcon extension.
+    // */
+    // read = new Scanner(MainWindow.imageFileType);
+    // /*
+    // * If the reader finds content in the file it appendes it to the
+    // * imageIcon
+    // */
+    // if (read.hasNextLine()) {
+    // String type = read.nextLine();
+    // ImageIcon icon1 = new ImageIcon("Images/imageIcon" + type);
+    // this.setIconImage(icon1.getImage());
+    // }
+    //
+    // } catch (FileNotFoundException ex) {
+    // System.out.println("Could not find files needed for Hub Icon.");
+    // }
+    // }
 
   }
 
   /**
-   * TODO: Fix this implementation.
+   * .
    * 
    * @return returns non-default Icon location.
    */
   private String getIconPath() {
-    if (MainWindow.imageFileType.exists()) {
-      Scanner read;
-      try {
-        /*
-         * Reads from the file that specifies the imageIcon extension.
-         */
-        read = new Scanner(MainWindow.imageFileType);
-        /*
-         * If the reader finds content in the file it appendes it to the
-         * imageIcon
-         */
-        if (read.hasNextLine()) {
-          String type = read.nextLine();
-          if (new File("Images/imageIcon" + type).exists()) {
-            return "Images/imageIcon" + type;
-          } else {
-            return "none";
-          }
-        }
 
-      } catch (FileNotFoundException ex) {
-        System.out.println("Could not find files needed for Hub Icon.");
-      }
-    }
-    return "none";
+    return PropertyManager.getIconImage();
 
   }
 
@@ -319,7 +267,7 @@ public class MainWindow extends JFrame implements KeyListener {
 
       TrayIcon trayIcon = null;
 
-      if (!getIconPath().equals("none")) {
+      if (!getIconPath().equals("")) {
         /*
          * Creates tray icon
          */
@@ -355,7 +303,6 @@ public class MainWindow extends JFrame implements KeyListener {
             localServerEnabled = false;
           }
         } catch (IOException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       });
@@ -382,8 +329,7 @@ public class MainWindow extends JFrame implements KeyListener {
         @Override
         public void actionPerformed(ActionEvent ex) {
           if (connectOnline.getLabel().equals("Connect Online")) {
-            ServerConnect.connect(
-                VisualPane.visualPane.getManager(), connectOnline);
+            ServerConnect.connect(VisualPane.visualPane.getManager(), connectOnline);
             connectOnline.setLabel("Disconnect Online");
           } else {
             ServerConnect.stopServer();
@@ -426,6 +372,20 @@ public class MainWindow extends JFrame implements KeyListener {
     file.add(name);
     edit.add(image);
 
+    JCheckBoxMenuItem closeOp = new JCheckBoxMenuItem("Stay in Background");
+
+    closeOp.addActionListener(evt -> {
+      if (closeOp.getState()) {
+        PropertyManager.setCloseOp("False");
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+      } else {
+        PropertyManager.setCloseOp("True");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      }
+    });
+
+    file.add(closeOp);
+
     image.addActionListener(evt -> addIconImage(mainWindow));
 
     name.addActionListener(evt -> {
@@ -435,14 +395,8 @@ public class MainWindow extends JFrame implements KeyListener {
         hubName = nameWindow;
         setTitle(nameWindow);
         setName(nameWindow);
-        try {
-          FileWriter write = new FileWriter(nameFile);
-          write.write(nameWindow);
-          write.close();
+        PropertyManager.setName(hubName);
 
-        } catch (IOException ex) {
-          ex.printStackTrace();
-        }
       }
     });
 
@@ -455,7 +409,7 @@ public class MainWindow extends JFrame implements KeyListener {
   }
 
   /**
-   * Adds Icon image to the window. TODO: comment
+   * Adds Icon image to the window.
    * 
    * @param mainWindow
    *          Reference to the window.
@@ -476,16 +430,12 @@ public class MainWindow extends JFrame implements KeyListener {
     mainWindow.setIconImage(icon.getImage());
     Path source = Paths.get(imageLoc.getAbsolutePath());
     try {
-      int num = imageLoc.getAbsolutePath().lastIndexOf(".");
-      Files.copy(source,
-          Paths.get("Images/imageIcon" + imageLoc.getPath().substring(num)),
+      Files.copy(source, Paths.get("Images/" + imageLoc.getName()),
           StandardCopyOption.REPLACE_EXISTING);
-      FileWriter imgTypeWriter = new FileWriter(new File("Resources/imgType.dat"));
-      imgTypeWriter.write(imageLoc.getAbsolutePath().substring(num));
-      imgTypeWriter.close();
     } catch (IOException e1) {
-      e1.printStackTrace();
+      System.err.println("Error copying image.");
     }
+    PropertyManager.setIcon("Images/" + imageLoc.getName());
 
   }
 
