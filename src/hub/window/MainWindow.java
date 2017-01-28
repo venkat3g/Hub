@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -140,9 +141,6 @@ public class MainWindow extends JFrame implements KeyListener {
    *           throws error if file is not found.
    */
   private void useFileName() throws FileNotFoundException {
-
-    PropertyManager.load();
-
     hubName = PropertyManager.getName();
 
     this.setTitle(hubName);

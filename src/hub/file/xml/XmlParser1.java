@@ -1,6 +1,7 @@
 package hub.file.xml;
 
 import java.io.File;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -10,6 +11,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class XmlParser1 {
@@ -33,6 +35,18 @@ public class XmlParser1 {
 
     rootNode = doc.getChildNodes().item(0);
 
+  }
+
+  public XmlParser1(File file, boolean bo) throws Exception {
+    xmlFile = file;
+
+    doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+    doc.appendChild(doc.createElement("Properties"));
+    
+    saveFile();
+
+    rootNode = doc.getChildNodes().item(0);
   }
 
   public Node getRootNode() {
@@ -59,5 +73,15 @@ public class XmlParser1 {
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
     transformer.transform(source, streamResult);
+  }
+
+  public void removeNode(XmlNode1 xmlNode1) {
+    getRootNode().removeChild(xmlNode1.getNode());
+    
+  }
+
+  public Element createElement(String tag) {
+    
+    return doc.createElement(tag);
   }
 }

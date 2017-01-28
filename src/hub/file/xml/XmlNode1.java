@@ -53,6 +53,26 @@ public class XmlNode1 {
     node.getChildNodes().getLength();
   }
 
+  /**
+   * Constructs a XmlNode.
+   * 
+   * @param file
+   *          file to save to.
+   * @param bo
+   *          specifies whether file exists or not.
+   */
+  public XmlNode1(File file, boolean bo) {
+    try {
+      file.createNewFile();
+      this.parser = new XmlParser1(file, bo); 
+      this.node = this.parser.getRootNode();
+
+    } catch (Exception ex) {
+      // TODO Auto-generated catch block
+      ex.printStackTrace();
+    }
+  }
+
   public String getName() {
     return name;
 
@@ -129,6 +149,31 @@ public class XmlNode1 {
     } catch (TransformerException ex) {
       System.err.println("unable to save");
     }
+  }
+
+  /**
+   * Adds the child to the current node.
+   * 
+   * @param child
+   *          XmlNode - child node
+   */
+  public void appendChild(XmlNode1 child) {
+    getNode().appendChild(child.getNode());
+    try {
+      parser.saveFile();
+    } catch (TransformerException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  public XmlNode1 createElement(String tag) {
+    return new XmlNode1(parser, parser.createElement(tag));
+
+  }
+
+  public void removeNode() {
+    parser.removeNode(this);
   }
 
   public Node getNode() {
