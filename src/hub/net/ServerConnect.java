@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
 
 import hub.file.manager.HubManager;
 import hub.runnable.IRunnableButton;
-import hub.window.VisualPane;
 
 /**
  * Server that will connect to proxy where client will connect as well.
