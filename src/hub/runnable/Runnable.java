@@ -19,6 +19,10 @@ public abstract class Runnable implements IRunnableButton {
     protected String imageLocation;
     protected XmlNode node;
 
+    /**
+     * No-arg constructor, the runnable's properties such as name, path,
+     * shortcut, imageLocation, and node will not work unless set.
+     */
     public Runnable() {
         // TODO Auto-generated constructor stub
     }
