@@ -20,16 +20,17 @@ public class PropertyManager {
         port = 1024;
         closeop = "True";
         imgicon = "";
-        root = new XmlNode1(file, false);
+        root = new XmlNode1(file, false, "Properties");
         root.appendChild(root.createElement("Name"));
         root.appendChild(root.createElement("Port"));
         root.appendChild(root.createElement("CloseOp"));
         root.appendChild(root.createElement("IconImage"));
-        root = new XmlNode1(file);
         setPort(1024);
         setCloseOp("True");
 
       } catch (Exception ex) {
+          ex.printStackTrace();
+        System.err.println(ex.getMessage());
         System.err.println("Not enough sufficent permissions to write resource.");
       }
     } else {
